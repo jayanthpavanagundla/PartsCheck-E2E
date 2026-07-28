@@ -1,0 +1,26 @@
+{
+  "name": "partscheck-e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env ENV=dev playwright test",
+    "test:dev": "cross-env ENV=dev playwright test",
+    "test:staging": "cross-env ENV=staging playwright test",
+    "test:prod": "cross-env ENV=prod playwright test",
+    "report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "allure-js-commons": "^3.10.2",
+    "allure-playwright": "^3.10.2",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2"
+  },
+  "dependencies": {}
+}

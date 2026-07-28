@@ -1,0 +1,16 @@
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/.auth/
+/allure-results/
+/allure-report/
+
+# Environment files — real secrets are ignored, examples are committed
+.env
+.env.*
+!.env.example
+!.env.*.example
