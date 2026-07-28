@@ -1,10 +1,14 @@
 import { test as setup } from "@playwright/test";
 import path from "path";
+import { epic, feature } from "allure-js-commons";
 import { LoginPage } from "../pages/Auth/LoginPage.js";
 
 const authFile = path.join(__dirname, "../.auth/repairerAdmin.json");
 
-setup("Admin Repairer sign in", async ({ page }) => {
+setup("Repairer sign in", async ({ page }) => {
+  await epic("Auth-Setup");
+  await feature("Admin");
+
   const loginPage = new LoginPage(page);
 
   await loginPage.signIn(
