@@ -115,6 +115,9 @@ export class NewQuoteTab extends BasePage {
   cancelButton: Locator;
   okButton: Locator;
   successMessage: Locator;
+  calendarIcon: Locator;
+  calendarPopup: Locator;
+  poNoteSelect: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -125,8 +128,8 @@ export class NewQuoteTab extends BasePage {
 
     // Quote Info locators
     this.quoteInfoTab = this.page.locator('.l_tab[data-tabid="0"]');
-    this.normalQuoteRadio = this.page.locator("#NormalQuote");
-    this.directPurchaseRadio = this.page.locator("#DirectPurchase");
+    this.normalQuoteRadio = this.page.locator('label[for="NormalQuote"]');
+    this.directPurchaseRadio = this.page.locator('label[for="DirectPurchase"]');
     this.quoteRefInput = this.page.locator("#quoteRef");
     this.quoteDetailsHeading = this.page.locator("#testData");
     this.marginDropdown = this.page.locator("#insurerId");
@@ -196,6 +199,9 @@ export class NewQuoteTab extends BasePage {
     this.successMessage = this.page.getByText(
       /Your quote has now been sent to your chosen suppliers/i,
     );
+    this.calendarIcon = this.page.locator('img[title="Calendar"]');
+    this.calendarPopup = this.page.locator("#bypass_prefsupply_ID");
+    this.poNoteSelect = this.page.locator("#poNoteSelect");
   }
 
   // New Quote Tab
@@ -226,9 +232,11 @@ export class NewQuoteTab extends BasePage {
   async selectQuoteType(type: "Normal" | "Direct") {
     await step(`Select Quote Type: ${type}`, async () => {
       if (type === "Normal") {
-        await this.normalQuoteRadio.check();
+        await this.normalQuoteRadio.click();
+        await expect(this.page.locator("#NormalQuote")).toBeChecked();
       } else {
-        await this.directPurchaseRadio.check();
+        await this.directPurchaseRadio.click();
+        await expect(this.page.locator("#DirectPurchase")).toBeChecked();
       }
     });
   }
@@ -542,6 +550,27 @@ export class NewQuoteTab extends BasePage {
 
     await this.expectVisible(targetSlot);
     await targetSlot.click();
+  }
+
+  async selectDateTimeDirectPurchaseQuote(daysFromToday = 3) {
+    await this.calendarIcon.click();
+
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + daysFromToday);
+    const day = targetDate.getDate().toString();
+
+    await this.expectVisible(this.calendarPopup);
+
+    await this.calendarPopup
+      .locator("#bypass_prefsupply_DayTable_ID td.calendarDateInput", {
+        hasText: day,
+      })
+      .first()
+      .click();
+  }
+
+  async selectPONote(label: string) {
+    await this.poNoteSelect.selectOption({ label });
   }
 
   async submitAndCancel() {
