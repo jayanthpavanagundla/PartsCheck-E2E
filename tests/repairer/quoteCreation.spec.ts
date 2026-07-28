@@ -24,6 +24,8 @@ test.describe("Quote Creation Flow", () => {
   });
 
   test("Normal Quote Creation", async () => {
+    test.setTimeout(150_000);
+
     await repairerNavBarPage.clickGetPrice();
     await repairerGetPricePage.newQuote.clickNewQuote();
 
@@ -57,10 +59,52 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
     // SECTION 06: Select Time
-    await repairerGetPricePage.newQuote.selectDeliveryDateAndTime(
+    await repairerGetPricePage.newQuote.selectDateTimeNormalQuote(
       1,
       "11:00 am",
     );
+    await repairerGetPricePage.newQuote.submitAndCancel();
+    await repairerGetPricePage.newQuote.submitAndConfirm();
+    await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
+  });
+
+  test("Direct Purchase Quote Creation", async () => {
+    test.setTimeout(150_000);
+
+    await repairerNavBarPage.clickGetPrice();
+    await repairerGetPricePage.newQuote.clickNewQuote();
+
+    // SECTION 01: Quote Info
+    await repairerGetPricePage.newQuote.fillQuoteInfoTab("Direct");
+    await repairerGetPricePage.newQuote.clickNext();
+    await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
+
+    // SECTION 02: Images
+    await repairerGetPricePage.newQuote.uploadImages(imageFiles);
+    await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
+    await repairerGetPricePage.newQuote.clickNext();
+    await repairerGetPricePage.newQuote.verifyImagesTabComplete();
+
+    // SECTION 03: Build Quote
+    await repairerGetPricePage.newQuote.clickListView();
+    await repairerGetPricePage.newQuote.addFirstPartForAllCategories(2);
+    await repairerGetPricePage.newQuote.clickNext();
+    await repairerGetPricePage.newQuote.verifyBuildQuoteTabComplete();
+
+    // SECTION 04: Part Type
+    await repairerGetPricePage.newQuote.clickSelectAll();
+    await repairerGetPricePage.newQuote.clickNext();
+    await repairerGetPricePage.newQuote.verifyPartTypeTabComplete();
+
+    // SECTION 05: Suppliers
+    await repairerGetPricePage.newQuote.unselectAllSuppliers();
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s1");
+    await repairerGetPricePage.newQuote.clickNext();
+    await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
+
+    // SECTION 06: Select Time
+    await repairerGetPricePage.newQuote.selectDateTimeDirectPurchaseQuote(3);
+    await repairerGetPricePage.newQuote.selectPONote("i enjoy stuff");
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
