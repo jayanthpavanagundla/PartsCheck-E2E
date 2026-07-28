@@ -527,7 +527,7 @@ export class NewQuoteTab extends BasePage {
 
   // SECTION 06 : Select Time
 
-  async selectDeliveryDateAndTime(optionIndex = 1, timeLabel = "3:30 am") {
+  async selectDateTimeNormalQuote(optionIndex = 1, timeLabel = "3:30 am") {
     const dateValue = await this.selectDateReqDropdown
       .locator("option")
       .nth(optionIndex)

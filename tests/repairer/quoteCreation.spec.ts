@@ -57,7 +57,7 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
     // SECTION 06: Select Time
-    await repairerGetPricePage.newQuote.selectDeliveryDateAndTime(
+    await repairerGetPricePage.newQuote.selectDateTimeNormalQuote(
       1,
       "11:00 am",
     );
