@@ -70,9 +70,6 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
-    console.log(
-      `Make: ${quoteInfo.make}, Year: ${quoteInfo.year}, Month: ${quoteInfo.month}`,
-    );
   });
 
   test("Direct Purchase Quote Creation", async () => {
@@ -119,8 +116,5 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
-    console.log(
-      `Make: ${quoteInfo.make}, Year: ${quoteInfo.year}, Month: ${quoteInfo.month}`,
-    );
   });
 });
