@@ -3,6 +3,7 @@ import path from "path";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerGetPrice } from "../../pages/Repairer/RepairerGetPrice.js";
 import { epic } from "allure-js-commons";
+import { addQuoteToPool, addToCompletedPool } from "../../helpers/quotePool.js";
 
 const imageFiles = [
   path.join(__dirname, "../../helpers/Img01.jpg"),
@@ -30,7 +31,10 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.clickNewQuote();
 
     // SECTION 01: Quote Info
-    await repairerGetPricePage.newQuote.fillQuoteInfoTab("Normal");
+    const quoteInfo =
+      await repairerGetPricePage.newQuote.fillQuoteInfoTab("Normal");
+    // Add Quote Number Quote Pool
+    addQuoteToPool(quoteInfo.quoteNr);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
@@ -66,6 +70,9 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
+    console.log(
+      `Make: ${quoteInfo.make}, Year: ${quoteInfo.year}, Month: ${quoteInfo.month}`,
+    );
   });
 
   test("Direct Purchase Quote Creation", async () => {
@@ -75,7 +82,11 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.clickNewQuote();
 
     // SECTION 01: Quote Info
-    await repairerGetPricePage.newQuote.fillQuoteInfoTab("Direct");
+    const quoteInfo = await repairerGetPricePage.newQuote.fillQuoteInfoTab(
+      "Direct",
+    );
+    // Add Quote Number Quote Pool
+    addQuoteToPool(quoteInfo.quoteNr);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
@@ -108,5 +119,8 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
+    console.log(
+      `Make: ${quoteInfo.make}, Year: ${quoteInfo.year}, Month: ${quoteInfo.month}`,
+    );
   });
 });

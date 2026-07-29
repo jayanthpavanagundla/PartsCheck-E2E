@@ -40,17 +40,23 @@ export class DraftQuoteTab {
 }
 //=============================NEW QUOTE TAB=============================//
 export interface QuoteInfoData {
+  quoteType: "Normal" | "Direct";
   quoteNr: string;
+  margin: string;
   estimator: string;
   claimNr: string;
   rego: string;
   vin: string;
   make: string;
   model: string;
+  modelNumber: string;
+  colour: string;
+  transmission: string;
   series: string;
   bodyStyle: string;
   month: string;
   year: string;
+  comments: string;
 }
 
 export class NewQuoteTab extends BasePage {
@@ -241,60 +247,77 @@ export class NewQuoteTab extends BasePage {
     });
   }
 
-  async generateQuoteNumber(): Promise<string> {
-    await step("Click quote details to auto-generate Quote Info", async () => {
-      await this.quoteDetailsHeading.click();
-      await expect(this.quoteRefInput).not.toHaveValue("");
+  async fillQuoteNumber(): Promise<string> {
+    const quoteNr = DataGenerators.randomNumber(6);
+    await step(`Fill Quote Number: ${quoteNr}`, async () => {
+      await this.quoteRefInput.clear();
+      await this.quoteRefInput.fill(quoteNr);
     });
-    const quoteNr = await this.quoteRefInput.inputValue();
-    await step(`Auto-generated Quote Number: ${quoteNr}`, async () => {});
     return quoteNr;
   }
 
-  async selectMargin() {
-    await step("Select Margin: Standard", async () => {
-      await this.marginDropdown.selectOption({ label: "Standard" });
-    });
+  async selectMargin(): Promise<string> {
+    const margin = await DataGenerators.selectRandomOption(
+      this.marginDropdown,
+    );
+    await step(`Select Margin: ${margin}`, async () => {});
+    return margin;
   }
 
   async fillEstimator(): Promise<string> {
-    const estimator = await this.estimatorInput.inputValue();
-    await step(`Capture auto-filled Estimator: ${estimator}`, async () => {});
+    const estimator = DataGenerators.randomString("Estimator-", 3);
+    await step(`Fill Estimator: ${estimator}`, async () => {
+      await this.estimatorInput.clear();
+      await this.estimatorInput.fill(estimator);
+    });
     return estimator;
   }
 
   async fillClaimNumber(): Promise<string> {
-    const claimNr = await this.claimNrInput.inputValue();
-    await step(`Capture auto-filled Claim Number: ${claimNr}`, async () => {});
+    const claimNr = DataGenerators.randomString("CL", 6);
+    await step(`Fill Claim Number: ${claimNr}`, async () => {
+      await this.claimNrInput.clear();
+      await this.claimNrInput.fill(claimNr);
+    });
     return claimNr;
   }
 
   async fillRegistration(): Promise<string> {
-    const rego = await this.vehRegoInput.inputValue();
-    await step(`Capture auto-filled Registration: ${rego}`, async () => {});
+    const rego = DataGenerators.randomString("RN", 6);
+    await step(`Fill Registration: ${rego}`, async () => {
+      await this.vehRegoInput.clear();
+      await this.vehRegoInput.fill(rego);
+    });
     return rego;
   }
 
   async fillVIN(): Promise<string> {
-    const vin = await this.vinInput.inputValue();
-    await step(`Capture auto-filled VIN: ${vin}`, async () => {});
+    const vin = DataGenerators.randomString("VIN", 14);
+    await step(`Fill VIN: ${vin}`, async () => {
+      await this.vinInput.clear();
+      await this.vinInput.fill(vin);
+    });
     return vin;
   }
 
-  async selectRandomMake(): Promise<string> {
-    const make = await this.makeDropdown.inputValue();
-    await step(`Capture auto-selected Make: ${make}`, async () => {});
-    return make;
+  async selectMake(): Promise<string> {
+    await step("Select Make: Toyota", async () => {
+      await this.makeDropdown.selectOption({ label: "Toyota" });
+    });
+    return "Toyota";
   }
 
   async fillModel(): Promise<string> {
-    const model = await this.modelInput.inputValue();
-    await step(`Capture auto-filled Model: ${model}`, async () => {});
+    const model = DataGenerators.randomString("MOD", 6);
+    await step(`Fill Model: ${model}`, async () => {
+      await this.modelInput.clear();
+      await this.modelInput.fill(model);
+    });
     return model;
   }
 
   async fillModelNumber(): Promise<string> {
-    const modelNumber = DataGenerators.randomNumber(15);
+    const modelNumber = DataGenerators.randomNumber(9);
     await step(`Fill Model Number: ${modelNumber}`, async () => {
       await this.modelNumberInput.clear();
       await this.modelNumberInput.fill(modelNumber);
@@ -322,34 +345,37 @@ export class NewQuoteTab extends BasePage {
   }
 
   async fillSeries(): Promise<string> {
-    const series = await this.vehSeriesInput.inputValue();
-    await step(`Capture auto-filled Series: ${series}`, async () => {});
+    const options = ["v1", "v2", "v3", "v4", "v5"];
+    const series = DataGenerators.randomFromArray(options);
+    await step(`Fill Series: ${series}`, async () => {
+      await this.vehSeriesInput.clear();
+      await this.vehSeriesInput.fill(series);
+    });
     return series;
   }
 
   async selectRandomBodyStyle(): Promise<string> {
-    const bodyStyle = await this.bodyStyleDropdown.inputValue();
-    await step(
-      `Capture auto-selected Body Style: ${bodyStyle}`,
-      async () => {},
+    const bodyStyle = await DataGenerators.selectRandomOption(
+      this.bodyStyleDropdown,
     );
+    await step(`Select Body Style: ${bodyStyle}`, async () => {});
     return bodyStyle;
   }
 
   async selectRandomMonth(): Promise<string> {
-    const month = await this.monthDropdown.inputValue();
-    await step(`Capture auto-selected Month: ${month}`, async () => {});
+    const month = await DataGenerators.selectRandomOption(this.monthDropdown);
+    await step(`Select Month: ${month}`, async () => {});
     return month;
   }
 
   async selectRandomYear(): Promise<string> {
-    const year = await this.yearDropdown.inputValue();
-    await step(`Capture auto-selected Year: ${year}`, async () => {});
+    const year = await DataGenerators.selectRandomOption(this.yearDropdown);
+    await step(`Select Year: ${year}`, async () => {});
     return year;
   }
 
   async fillComments(): Promise<string> {
-    const comments = DataGenerators.randomString(20);
+    const comments = DataGenerators.randomString("Comments:", 20);
     await step(`Fill Comments: ${comments}`, async () => {
       await this.commentsTextarea.clear();
       await this.commentsTextarea.fill(comments);
@@ -361,33 +387,40 @@ export class NewQuoteTab extends BasePage {
     quoteType: "Normal" | "Direct" = "Normal",
   ): Promise<QuoteInfoData> {
     await this.selectQuoteType(quoteType);
-    const quoteNr = await this.generateQuoteNumber();
-    await this.selectMargin();
+    const quoteNr = await this.fillQuoteNumber();
+    const margin = await this.selectMargin();
     const estimator = await this.fillEstimator();
     const claimNr = await this.fillClaimNumber();
     const rego = await this.fillRegistration();
     const vin = await this.fillVIN();
-    const make = await this.selectRandomMake();
+    const make = await this.selectMake();
     const model = await this.fillModel();
+    const modelNumber = await this.fillModelNumber();
+    const colour = await this.fillColour();
+    const transmission = await this.fillTransmission();
     const series = await this.fillSeries();
     const bodyStyle = await this.selectRandomBodyStyle();
     const month = await this.selectRandomMonth();
     const year = await this.selectRandomYear();
-
-    // Stored on the instance so any other test case holding a reference to
-    // this page object can read the auto-filled values after the fact.
+    const comments = await this.fillComments();
     this.quoteInfo = {
+      quoteType,
       quoteNr,
+      margin,
       estimator,
       claimNr,
       rego,
       vin,
       make,
       model,
+      modelNumber,
+      colour,
+      transmission,
       series,
       bodyStyle,
       month,
       year,
+      comments,
     };
     return this.quoteInfo;
   }
@@ -443,17 +476,18 @@ export class NewQuoteTab extends BasePage {
   }
 
   async addFirstPartFromCategory(index: number) {
-    await step(`Select category ${index} and add first part`, async () => {
+    await step(`Select category ${index} and add a random part`, async () => {
       await this.waitForCategoriesLoaded();
       const category = this.categoryList.nth(index);
       await category.scrollIntoViewIfNeeded();
       await category.click();
 
-      const selectorAction = this.buildFrame
-        .locator(
-          ".build-content .lineItem.itemTypeRow1 .selector-action:visible",
-        )
-        .first();
+      const selectorActions = this.buildFrame.locator(
+        ".build-content .lineItem.itemTypeRow1 .selector-action:visible",
+      );
+      const partCount = await selectorActions.count();
+      const randomIndex = Math.floor(Math.random() * partCount);
+      const selectorAction = selectorActions.nth(randomIndex);
       const itemId = await selectorAction
         .locator('input[name="itemID"]')
         .getAttribute("value");
