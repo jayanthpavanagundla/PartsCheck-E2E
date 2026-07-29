@@ -1,6 +1,5 @@
 import { Locator } from "@playwright/test";
 
-//=============================RANDOM DATA UTILS=============================//
 export class DataGenerators {
   /** Generates a numeric string of the given length, e.g. randomNumber(9) -> "483920175" */
   static randomNumber(digits: number): string {
@@ -12,13 +11,15 @@ export class DataGenerators {
   }
 
   /** Generates an uppercase alphanumeric string of the given length */
-  static randomString(length: number): string {
+  static randomString(prefix: string, length: number): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
+    let randomPart = "";
+
     for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+      randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result;
+
+    return `${prefix}${randomPart}`;
   }
 
   /** Returns a random colour name */
@@ -60,5 +61,16 @@ export class DataGenerators {
       }
     }
     return values;
+  }
+
+  /** Selects a random real option from a <select> and returns the value chosen */
+  static async selectRandomOption(
+    dropdown: Locator,
+    excludePlaceholder: boolean = true,
+  ): Promise<string> {
+    const values = await this.getSelectableValues(dropdown, excludePlaceholder);
+    const value = this.randomFromArray(values);
+    await dropdown.selectOption(value);
+    return value;
   }
 }
