@@ -4,6 +4,7 @@ import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerGetPrice } from "../../pages/Repairer/RepairerGetPrice.js";
 import { epic } from "allure-js-commons";
 import { addQuoteToPool, addToCompletedPool } from "../../helpers/quotePool.js";
+import { saveQuoteImages } from "../../helpers/imagePool.js";
 
 const imageFiles = [
   path.join(__dirname, "../../helpers/Img01.jpg"),
@@ -41,6 +42,9 @@ test.describe("Quote Creation Flow", () => {
     // SECTION 02: Images
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
+    const uploadedImages =
+      await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
+    saveQuoteImages(quoteInfo.quoteNr, uploadedImages);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyImagesTabComplete();
 
@@ -90,6 +94,9 @@ test.describe("Quote Creation Flow", () => {
     // SECTION 02: Images
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
+    const uploadedImages =
+      await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
+    saveQuoteImages(quoteInfo.quoteNr, uploadedImages);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyImagesTabComplete();
 

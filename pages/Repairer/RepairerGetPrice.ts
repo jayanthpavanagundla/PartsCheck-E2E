@@ -94,6 +94,7 @@ export class NewQuoteTab extends BasePage {
   imgAddThumbnails: Locator;
   fileUploadInput: Locator;
   viewImageIcons: Locator;
+  uploadedImageThumbnails: Locator;
 
   // Build Quote locators
   buildQuoteTab: Locator;
@@ -165,6 +166,9 @@ export class NewQuoteTab extends BasePage {
     this.fileUploadInput = this.imageFrame.locator("#image_upload");
     this.viewImageIcons = this.imageFrame.locator(
       ".imageOuter.itemImage .view-img-icon",
+    );
+    this.uploadedImageThumbnails = this.imageFrame.locator(
+      ".imageOuter.itemImage img.imgborder",
     );
 
     // Build Quote Locators
@@ -257,9 +261,7 @@ export class NewQuoteTab extends BasePage {
   }
 
   async selectMargin(): Promise<string> {
-    const margin = await DataGenerators.selectRandomOption(
-      this.marginDropdown,
-    );
+    const margin = await DataGenerators.selectRandomOption(this.marginDropdown);
     await step(`Select Margin: ${margin}`, async () => {});
     return margin;
   }
@@ -442,6 +444,20 @@ export class NewQuoteTab extends BasePage {
   async verifyImagesUploaded(count: number) {
     await step(`Verify ${count} images uploaded successfully`, async () => {
       await expect(this.viewImageIcons).toHaveCount(count);
+    });
+  }
+
+  async getUploadedImageIdentifiers(): Promise<string[]> {
+    return await step("Read uploaded image identifiers", async () => {
+      const srcs = await this.uploadedImageThumbnails.evaluateAll(
+        (imgs: HTMLImageElement[]) => imgs.map((img) => img.src),
+      );
+      return srcs
+        .map((src) => {
+          const fileName = new URL(src).searchParams.get("fileName") ?? src;
+          return fileName.slice(10);
+        })
+        .sort();
     });
   }
 
