@@ -22,13 +22,17 @@ export class NewQuotesRequestTab {
   savePricesButton: Locator;
   submitQuoteButton: Locator;
   submitVerifyText: Locator;
+  // Images Popup Locators
+  imagesButton: Locator;
+  imagesCounter: Locator;
+  popupImageThumbnails: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.quoteRequestTab = page.locator(".toplist.cboxlink", {
       hasText: "New Quote Request",
     });
 
-    // Incoming Quotes popup opened by clickNewQuoteRequest
+    // Popup opened by clickNewQuoteRequest / clickImagesButton (colorbox reuses this iframe)
     this.popupFrame = page.frameLocator("iframe.cboxIframe");
     this.requestRows = this.popupFrame.locator("tr.requestRow");
     // Submit Quote Tab Locators
@@ -43,6 +47,12 @@ export class NewQuotesRequestTab {
     this.savePricesButton = this.page.locator(".baseButton.savePricesButton");
     this.submitQuoteButton = this.page.locator(".baseButton.submitQuoteButton");
     this.submitVerifyText = this.page.locator('td[colspan="8"] > b');
+    // Images Popup Locators
+    this.imagesButton = this.page.locator("a.qtbtn.showPhotos");
+    this.imagesCounter = this.imagesButton.locator(
+      "xpath=preceding-sibling::span[contains(@class,'toplistcounter')]",
+    );
+    this.popupImageThumbnails = this.popupFrame.locator(".image-item img");
   }
   // Methods
   async clickNewQuoteRequest(): Promise<void> {
@@ -146,6 +156,33 @@ export class NewQuotesRequestTab {
         }
       },
     );
+  }
+
+  async verifyImagesCounter(count: number): Promise<void> {
+    await step(`Verify images counter shows '${count}'`, async () => {
+      await expect(this.imagesCounter).toHaveText(count.toString());
+    });
+  }
+
+  async clickImagesButton(): Promise<void> {
+    await step('Click "Images" button', async () => {
+      await this.imagesButton.locator("img").click();
+    });
+  }
+
+  async getVisibleImageIdentifiers(): Promise<string[]> {
+    return await step("Read image identifiers visible in Images popup", async () => {
+      await expect(this.popupImageThumbnails.first()).toBeVisible();
+      const srcs = await this.popupImageThumbnails.evaluateAll(
+        (imgs: HTMLImageElement[]) => imgs.map((img) => img.src),
+      );
+      return srcs
+        .map((src) => {
+          const fileName = new URL(src).searchParams.get("fileName") ?? src;
+          return fileName.slice(10);
+        })
+        .sort();
+    });
   }
 
   async clickSubmitQuote(): Promise<void> {

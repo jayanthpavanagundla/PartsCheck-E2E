@@ -1,23 +1,18 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import path from "path";
 import { SupplierNavBar } from "../../pages/Supplier/SupplierNavBar.js";
-import { SupplierOrders } from "../../pages/Supplier/SupplierOrders.js";
 import { SupplierQuotes } from "../../pages/Supplier/SupplierQuotes.js";
-import { SuppliersCreditManagement } from "../../pages/Supplier/SupplierCreditManagement.js";
-import { SupplierReportsAndTools } from "../../pages/Supplier/SupplierReportsAndTools.js";
 import { epic } from "allure-js-commons";
 import {
   addQuoteToPool,
   addToCompletedPool,
   loadQuotePool,
 } from "../../helpers/quotePool.js";
+import { loadQuoteImages, removeQuoteImages } from "../../helpers/imagePool.js";
 
 test.describe("Submit Quote Flow", () => {
   let supplierNavBar: SupplierNavBar;
-  let supplierOrders: SupplierOrders;
   let supplierQuotes: SupplierQuotes;
-  let suppliersCreditManagement: SuppliersCreditManagement;
-  let supplierReportsAndTools: SupplierReportsAndTools;
 
   test.beforeEach(async ({ page }) => {
     epic("Submit Quote Flow");
@@ -37,6 +32,17 @@ test.describe("Submit Quote Flow", () => {
     await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(
       quoteNumber,
     );
+    // Verify the images the Repairer uploaded are visible to the Supplier
+    const uploadedImages = loadQuoteImages(quoteNumber);
+    await supplierQuotes.newQuotesRequestTab.verifyImagesCounter(
+      uploadedImages.length,
+    );
+    await supplierQuotes.newQuotesRequestTab.clickImagesButton();
+    const visibleImages =
+      await supplierQuotes.newQuotesRequestTab.getVisibleImageIdentifiers();
+    expect(visibleImages).toEqual(uploadedImages);
+    await supplierNavBar.closePopup();
+    removeQuoteImages(quoteNumber);
     // Filling Buy Price and List Price for all line items, then saving and verifying the saved values
     await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
     const filledItems =
