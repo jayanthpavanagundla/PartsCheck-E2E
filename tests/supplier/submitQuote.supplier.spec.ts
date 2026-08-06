@@ -6,13 +6,11 @@ import { SupplierQuotes } from "../../pages/Supplier/SupplierQuotes.js";
 import { SuppliersCreditManagement } from "../../pages/Supplier/SupplierCreditManagement.js";
 import { SupplierReportsAndTools } from "../../pages/Supplier/SupplierReportsAndTools.js";
 import { epic } from "allure-js-commons";
-import { addQuoteToPool, addToCompletedPool } from "../../helpers/quotePool.js";
-
-const imageFiles = [
-  path.join(__dirname, "../../helpers/Img01.jpg"),
-  path.join(__dirname, "../../helpers/Img02.jpg"),
-  path.join(__dirname, "../../helpers/Img03.jpg"),
-];
+import {
+  addQuoteToPool,
+  addToCompletedPool,
+  loadQuotePool,
+} from "../../helpers/quotePool.js";
 
 test.describe("Submit Quote Flow", () => {
   let supplierNavBar: SupplierNavBar;
@@ -25,57 +23,26 @@ test.describe("Submit Quote Flow", () => {
     epic("Submit Quote Flow");
 
     supplierNavBar = new SupplierNavBar(page);
-    supplierOrders = new SupplierOrders(page);
     supplierQuotes = new SupplierQuotes(page);
-    suppliersCreditManagement = new SuppliersCreditManagement(page);
-    supplierReportsAndTools = new SupplierReportsAndTools(page);
 
     await page.goto(process.env.SUPPLIER_LANDING_URL!);
   });
 
-  test("Normal Quote Creation", async () => {
-    test.setTimeout(150_000);
-
-    await supplierQuotes.newQuotesRequestTab.clickNewQuoteRequest();
-    await supplierNavBar.verifyPopupHeading("Incoming Quotes");
-    await supplierNavBar.closePopup();
-
+  test("Quote Submission", async () => {
     await supplierQuotes.quotesInProgressTab.clickQuotesInProgress();
     await supplierNavBar.verifyPopupHeading("Incoming Quotes");
-    await supplierNavBar.closePopup();
-
-    await supplierOrders.allOrdersTab.clickAllOrders();
-    await supplierOrders.allOrdersTab.verifyOrdersContainerVisible();
-
-    await supplierOrders.etaRequestsTab.clickEtaRequests();
-    await supplierOrders.etaRequestsTab.verifyEtaHeadingVisible();
-
-    await supplierOrders.etaOverdueTab.clickEtaOverdue();
-    await supplierOrders.etaOverdueTab.verifyEtaHeadingVisible();
-
-    await suppliersCreditManagement.allCreditsRequestTab.clickAllCreditRequests();
-    await suppliersCreditManagement.verifyCreditManagementHeading();
-
-    await suppliersCreditManagement.creditsNotOpenedTab.clickCreditsNotOpened();
-    await suppliersCreditManagement.verifyCreditManagementHeading();
-
-    await suppliersCreditManagement.creditsOpenedTab.clickCreditsOpened();
-    await suppliersCreditManagement.verifyCreditManagementHeading();
-
-    await supplierReportsAndTools.contactUsTab.clickContactUs();
-    await supplierReportsAndTools.contactUsTab.verifyFeedbackForm();
-    await supplierNavBar.closePopup();
-
-    await supplierReportsAndTools.newMessagesTab.clickNewMessages();
-    await supplierReportsAndTools.newMessagesTab.verifyMessageTypesLabel();
-    await supplierNavBar.closePopup();
-
-    await supplierReportsAndTools.newFeedbackTab.clickNewFeedback();
-    await supplierReportsAndTools.newFeedbackTab.verifyClientNameHeading();
-    await supplierNavBar.closePopup();
-
-    await supplierReportsAndTools.fillRateReportingTab.clickFillRateReporting();
-    await supplierReportsAndTools.fillRateReportingTab.verifyGraphShouldIncludeText();
-    await supplierNavBar.closePopup();
+    // Load a quote number from the pool and open it
+    const [quoteNumber] = loadQuotePool();
+    await supplierQuotes.newQuotesRequestTab.openQuoteByNumber(quoteNumber);
+    await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(
+      quoteNumber,
+    );
+    // Filling Buy Price and List Price for all line items, then saving and verifying the saved values
+    await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
+    const filledItems =
+      await supplierQuotes.newQuotesRequestTab.fillAllLineItems();
+    await supplierQuotes.newQuotesRequestTab.clickSavePrices();
+    await supplierQuotes.newQuotesRequestTab.verifyLineItemsSaved(filledItems);
+    await supplierQuotes.newQuotesRequestTab.clickSubmitQuote();
   });
 });

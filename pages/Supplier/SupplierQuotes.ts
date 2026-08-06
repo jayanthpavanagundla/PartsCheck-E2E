@@ -1,20 +1,162 @@
-import { Locator, Page, expect } from "@playwright/test";
+import { FrameLocator, Locator, Page, expect } from "@playwright/test";
 import { step } from "allure-js-commons";
+import { DataGenerators } from "../../helpers/DataGenerators";
 //=============================New Quotes Request Tab=============================//
+export interface FilledLineItem {
+  draftItemId: string;
+  partNumber: string;
+  buyPrice: string;
+  listPrice: string;
+}
+
 export class NewQuotesRequestTab {
   // Locators
   quoteRequestTab: Locator;
+  popupFrame: FrameLocator;
+  requestRows: Locator;
+  // Submit Quote Tab Locators
+  referenceValue: Locator;
+  supplierRefNrInput: Locator;
+  // Line Table Locators
+  lineItemRows: Locator;
+  savePricesButton: Locator;
+  submitQuoteButton: Locator;
+  submitVerifyText: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.quoteRequestTab = page.locator(".toplist.cboxlink", {
       hasText: "New Quote Request",
     });
+
+    // Incoming Quotes popup opened by clickNewQuoteRequest
+    this.popupFrame = page.frameLocator("iframe.cboxIframe");
+    this.requestRows = this.popupFrame.locator("tr.requestRow");
+    // Submit Quote Tab Locators
+    this.referenceValue = this.page
+      .locator(".quoteTitle", { hasText: /^Reference$/ })
+      .locator(
+        "xpath=following-sibling::div[contains(@class,'quoteTitleContent')]",
+      );
+    this.supplierRefNrInput = this.page.locator('input[name="supplierRefNr"]');
+    // Line Table Locators
+    this.lineItemRows = this.page.locator("tr.lineRow");
+    this.savePricesButton = this.page.locator(".baseButton.savePricesButton");
+    this.submitQuoteButton = this.page.locator(".baseButton.submitQuoteButton");
+    this.submitVerifyText = this.page.locator('td[colspan="8"] > b');
   }
   // Methods
   async clickNewQuoteRequest(): Promise<void> {
     await step('Click "New Quote Request" tab', async () => {
       await this.quoteRequestTab.click();
     });
+  }
+
+  quoteNumberLink(quoteNumber: string): Locator {
+    return this.requestRows.locator("a.ab").getByText(quoteNumber, {
+      exact: true,
+    });
+  }
+
+  async openQuoteByNumber(quoteNumber: string): Promise<void> {
+    await step(`Open quote '${quoteNumber}' from Incoming Quotes`, async () => {
+      await this.quoteNumberLink(quoteNumber).click();
+    });
+  }
+
+  async verifyReferenceMatchesQuoteNumber(quoteNumber: string): Promise<void> {
+    await step(
+      `Reference Number: ${quoteNumber} == Quote Pool Number: ${quoteNumber}`,
+      async () => {
+        await expect(this.referenceValue).toHaveText(quoteNumber);
+      },
+    );
+  }
+
+  async fillSupplierQuoteNr(quoteNumber: string): Promise<void> {
+    await step(`Fill Quote Nr with '${quoteNumber}'`, async () => {
+      await this.supplierRefNrInput.fill(quoteNumber);
+    });
+  }
+
+  async fillAllLineItems(): Promise<FilledLineItem[]> {
+    const filledItems: FilledLineItem[] = [];
+
+    await step(
+      "Fill Part Number, Buy Price and List Price for every line item",
+      async () => {
+        const rowCount = await this.lineItemRows.count();
+
+        for (let i = 0; i < rowCount; i++) {
+          const row = this.lineItemRows.nth(i);
+          const draftItemId =
+            (await row.getAttribute("data-draft_item_id")) ?? "";
+
+          const partNumber = DataGenerators.randomNumber(12);
+          const buyPrice = DataGenerators.randomPrice(50, 150).toString();
+          const listPrice = (parseFloat(buyPrice) * 1.5).toString();
+
+          await row.locator("input.partNr").fill(partNumber);
+          await row.locator("input.buyprice").fill(buyPrice);
+          await row.locator("input.listprice").fill(listPrice);
+
+          filledItems.push({ draftItemId, partNumber, buyPrice, listPrice });
+        }
+      },
+    );
+    return filledItems;
+  }
+
+  async clickSavePrices(): Promise<void> {
+    await step('Click "Save Prices" button', async () => {
+      await this.savePricesButton.click();
+    });
+  }
+
+  async verifyLineItemsSaved(filledItems: FilledLineItem[]): Promise<void> {
+    await step(
+      "Verify Part Number, Buy Price and List Price were saved correctly",
+      async () => {
+        for (const item of filledItems) {
+          const savedRow = this.page.locator(
+            `tr.lineRow[data-draft_item_id="${item.draftItemId}"]`,
+          );
+
+          const savedPartNumber =
+            (await savedRow.locator("td.wrapCell").nth(1).textContent()) ?? "";
+          const savedBuyPrice = await savedRow.getAttribute("data-buyprice");
+          const savedListPrice = await savedRow.getAttribute("data-listprice");
+
+          await step(
+            `Line ${item.draftItemId} - Filled [Part# ${item.partNumber}, Buy $${item.buyPrice}, List $${item.listPrice}] vs Saved [Part# ${savedPartNumber.trim()}, Buy $${savedBuyPrice}, List $${savedListPrice}]`,
+            async () => {
+              await expect(savedRow.locator("td.wrapCell").nth(1)).toHaveText(
+                item.partNumber,
+              );
+
+              expect(parseFloat(savedBuyPrice ?? "0")).toBeCloseTo(
+                parseFloat(item.buyPrice),
+                2,
+              );
+              expect(parseFloat(savedListPrice ?? "0")).toBeCloseTo(
+                parseFloat(item.listPrice),
+                2,
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  async clickSubmitQuote(): Promise<void> {
+    await step(
+      'Click "Submit Quote" button, accept confirmation dialog, and verify "Incoming Quotes" is shown',
+      async () => {
+        this.page.once("dialog", (dialog) => dialog.accept());
+        await this.submitQuoteButton.click();
+        await expect(this.submitVerifyText).toHaveText("Incoming Quotes");
+      },
+    );
   }
 }
 //=============================Quotes In Progress Tab=============================//

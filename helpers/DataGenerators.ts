@@ -22,6 +22,11 @@ export class DataGenerators {
     return `${prefix}${randomPart}`;
   }
 
+  /** Generates a random whole number price between min and max (inclusive) */
+  static randomPrice(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   /** Returns a random colour name */
   static randomColor(): string {
     const colors = [
