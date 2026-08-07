@@ -96,7 +96,11 @@ export default defineConfig({
       name: 'partscheck-supplier',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/supplier.json' },
       testMatch: /.*\.supplier\.spec\.ts/,
-      dependencies: ['supplier-setup'],
+      // Supplier specs consume quotes/images the Repairer specs produce
+      // (see helpers/quotePool.ts, helpers/imagePool.ts), so the full
+      // repairer project must finish before any supplier test starts.
+      dependencies: ['supplier-setup', 'partscheck-repairer'],
+      // dependencies: ['supplier-setup',],
     },
     {
       name: 'partscheck-supplier-admin',

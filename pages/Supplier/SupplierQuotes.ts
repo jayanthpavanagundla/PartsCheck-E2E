@@ -1,4 +1,5 @@
 import { FrameLocator, Locator, Page, expect } from "@playwright/test";
+import * as path from "path";
 import { step } from "allure-js-commons";
 import { DataGenerators } from "../../helpers/DataGenerators";
 //=============================New Quotes Request Tab=============================//
@@ -26,6 +27,12 @@ export class NewQuotesRequestTab {
   imagesButton: Locator;
   imagesCounter: Locator;
   popupImageThumbnails: Locator;
+  // Attachments Popup Locators
+  attachFileButton: Locator;
+  attachFileCounter: Locator;
+  attachFileInputs: Locator;
+  attachSubmitButtons: Locator;
+  attachedRows: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.quoteRequestTab = page.locator(".toplist.cboxlink", {
@@ -53,6 +60,18 @@ export class NewQuotesRequestTab {
       "xpath=preceding-sibling::span[contains(@class,'toplistcounter')]",
     );
     this.popupImageThumbnails = this.popupFrame.locator(".image-item img");
+    // Attachments Popup Locators (colorbox reuses the same iframe as Images)
+    this.attachFileButton = this.page.locator('div.qtbtn[data-url*="attachDoco"]');
+    this.attachFileCounter = this.page.locator("#attachFileCount");
+    this.attachFileInputs = this.popupFrame.locator(
+      'input[name="attachFile[]"]',
+    );
+    this.attachSubmitButtons = this.popupFrame.locator(
+      'input.baseButton[value="Attach"]',
+    );
+    this.attachedRows = this.popupFrame.locator(
+      'tr:has(td:text-is("Attached:"))',
+    );
   }
   // Methods
   async clickNewQuoteRequest(): Promise<void> {
@@ -158,6 +177,19 @@ export class NewQuotesRequestTab {
     );
   }
 
+  async clickSubmitQuote(): Promise<void> {
+    await step(
+      'Click "Submit Quote" button, accept confirmation dialog, and verify "Incoming Quotes" is shown',
+      async () => {
+        this.page.once("dialog", (dialog) => dialog.accept());
+        await this.submitQuoteButton.click();
+        await expect(this.submitVerifyText).toHaveText("Incoming Quotes");
+      },
+    );
+  }
+
+  // Images 
+
   async verifyImagesCounter(count: number): Promise<void> {
     await step(`Verify images counter shows '${count}'`, async () => {
       await expect(this.imagesCounter).toHaveText(count.toString());
@@ -185,15 +217,30 @@ export class NewQuotesRequestTab {
     });
   }
 
-  async clickSubmitQuote(): Promise<void> {
-    await step(
-      'Click "Submit Quote" button, accept confirmation dialog, and verify "Incoming Quotes" is shown',
-      async () => {
-        this.page.once("dialog", (dialog) => dialog.accept());
-        await this.submitQuoteButton.click();
-        await expect(this.submitVerifyText).toHaveText("Incoming Quotes");
-      },
-    );
+  // Attachments
+
+  async clickAttachFileButton(): Promise<void> {
+    await step('Click "Attach File" button', async () => {
+      await this.attachFileButton.locator("img").click();
+    });
+  }
+
+  async attachFile(filePath: string): Promise<string> {
+    const fileName = path.basename(filePath);
+    await step(`Attach file '${fileName}'`, async () => {
+      await this.attachFileInputs.first().setInputFiles(filePath);
+      await this.attachSubmitButtons.first().click();
+      await expect(
+        this.attachedRows.filter({ hasText: fileName }),
+      ).toBeVisible();
+    });
+    return fileName;
+  }
+
+  async verifyAttachmentsCounter(count: number): Promise<void> {
+    await step(`Verify attachments counter shows '${count}'`, async () => {
+      await expect(this.attachFileCounter).toHaveText(count.toString());
+    });
   }
 }
 //=============================Quotes In Progress Tab=============================//

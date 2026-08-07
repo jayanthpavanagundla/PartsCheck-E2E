@@ -1,10 +1,10 @@
 import { Locator } from "@playwright/test";
 
 export class DataGenerators {
-  /** Generates a numeric string of the given length, e.g. randomNumber(9) -> "483920175" */
+  /** Generates a numeric string of the given length; first digit is never 0, e.g. randomNumber(9) -> "483920175" */
   static randomNumber(digits: number): string {
-    let result = "";
-    for (let i = 0; i < digits; i++) {
+    let result = (Math.floor(Math.random() * 9) + 1).toString();
+    for (let i = 1; i < digits; i++) {
       result += Math.floor(Math.random() * 10).toString();
     }
     return result;
