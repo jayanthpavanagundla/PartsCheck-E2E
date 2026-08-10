@@ -108,7 +108,7 @@ export default defineConfig({
       name: 'partscheck-repairer',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
       testMatch: /.*\.spec\.ts/,
-      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts|.*checkPrice\.spec\.ts/,
+      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts|.*checkPrice\.spec\.ts|.*partsOrder\.spec\.ts/,
       dependencies: ['repairer-setup'],
     },
     {
@@ -116,6 +116,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
       testMatch: /.*checkPrice\.spec\.ts/,
       dependencies: ['repairer-setup', 'partscheck-supplier'],
+    },
+    {
+      name: 'partscheck-repairer-partsorder',
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
+      testMatch: /.*partsOrder\.spec\.ts/,
+      // dependencies: ['repairer-setup', 'partscheck-repairer-checkprice'],
+      dependencies: ['repairer-setup'],
     },
   ],
 });
