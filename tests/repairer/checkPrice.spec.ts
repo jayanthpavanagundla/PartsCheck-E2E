@@ -17,7 +17,7 @@ test.describe("Check Price for Submit Quote", () => {
     await page.goto(process.env.REPAIRER_LANDING_URL!);
   });
 
-  test("Normal Quote Price Check for Submit Quote", async () => {
+  test("Normal Quote Price Check for Submit Quote", async ({page}) => {
     await repairerNavBarPage.clickCheckPrice();
     await repairerCheckPricePage.activeQuotes.clickActiveQuotes();
 
@@ -37,5 +37,11 @@ test.describe("Check Price for Submit Quote", () => {
     await repairerCheckPricePage.activeQuotes.clickSaveSelection();
     await repairerCheckPricePage.activeQuotes.confirmPartsDialogAndSave();
     await repairerCheckPricePage.activeQuotes.verifyPartsSelectedForPurchaseVisible();
+    await repairerCheckPricePage.activeQuotes.fillPreferredDeliveryDate();
+    await repairerCheckPricePage.activeQuotes.selectSupplyNote();
+    await repairerCheckPricePage.activeQuotes.selectFromName();
+    await repairerCheckPricePage.activeQuotes.clickPurchase();
+    await repairerCheckPricePage.activeQuotes.confirmPurchase();
+    await repairerCheckPricePage.activeQuotes.verifyPurchaseOrdersSubmitted();
   });
 });

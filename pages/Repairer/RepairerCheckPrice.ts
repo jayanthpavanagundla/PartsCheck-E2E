@@ -1,5 +1,6 @@
 import { FrameLocator, Locator, Page, expect } from "@playwright/test";
 import { step } from "allure-js-commons";
+import { DataGenerators } from "../../helpers/DataGenerators";
 //=============================ACTIVE QUOTES TAB=============================//
 export class ActiveQuotesTab {
   // Locators
@@ -16,6 +17,13 @@ export class ActiveQuotesTab {
   confirmPartsDialog: Locator;
   confirmPartsConfirmButton: Locator;
   partsSelectedForPurchaseHeader: Locator;
+  prefDateInput: Locator;
+  supplyNoteSelect: Locator;
+  fromNameSelect: Locator;
+  purchaseButton: Locator;
+  purchaseAlertModal: Locator;
+  purchaseAlertOkButton: Locator;
+  purchaseOrdersSubmittedMessage: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.activeQuotes = this.page.locator("span.topTabText", {
@@ -44,6 +52,17 @@ export class ActiveQuotesTab {
     this.partsSelectedForPurchaseHeader = this.page.locator(
       "p.collpaseTitle",
       { hasText: "Parts Selected for Purchase" },
+    );
+    this.prefDateInput = this.page.locator("#prefDate");
+    this.supplyNoteSelect = this.page.locator("#poNoteSelect");
+    this.fromNameSelect = this.page.locator("#selectName");
+    this.purchaseButton = this.page.locator("#purchaseBtn");
+    this.purchaseAlertModal = this.page.locator("form.alertable");
+    this.purchaseAlertOkButton = this.purchaseAlertModal.locator(
+      "button.alertable-ok",
+    );
+    this.purchaseOrdersSubmittedMessage = this.page.getByText(
+      /Purchase orders have now been raised and submitted to chosen suppliers/i,
     );
   }
   // Methods
@@ -176,6 +195,52 @@ export class ActiveQuotesTab {
       "Verify 'Parts Selected for Purchase' section is visible",
       async () => {
         await expect(this.partsSelectedForPurchaseHeader).toBeVisible();
+      },
+    );
+  }
+
+  async fillPreferredDeliveryDate(): Promise<void> {
+    await step("Fill preferred delivery date with today's date", async () => {
+      await this.prefDateInput.fill(DataGenerators.currentDate());
+    });
+  }
+
+  async selectSupplyNote(): Promise<string> {
+    return await step("Select a random Supply Note option", async () => {
+      return await DataGenerators.selectRandomOption(this.supplyNoteSelect);
+    });
+  }
+
+  async selectFromName(): Promise<string> {
+    return await step("Select a random 'From' name", async () => {
+      return await DataGenerators.selectRandomOption(this.fromNameSelect);
+    });
+  }
+
+  async clickPurchase(): Promise<void> {
+    await step("Click 'Purchase' button", async () => {
+      await this.purchaseButton.click();
+    });
+  }
+
+  async confirmPurchase(): Promise<void> {
+    await step(
+      "Confirm 'Are you sure you are ready to Purchase Items?' alert",
+      async () => {
+        await expect(this.purchaseAlertModal).toBeVisible();
+        await this.purchaseAlertOkButton.click();
+      },
+    );
+  }
+
+  async verifyPurchaseOrdersSubmitted(): Promise<void> {
+    await step(
+      "Verify 'Purchase orders have now been raised and submitted to chosen suppliers' message is visible",
+      async () => {
+        // Submitting purchase orders to suppliers takes ~15-20s to process.
+        await expect(this.purchaseOrdersSubmittedMessage).toBeVisible({
+          timeout: 45000,
+        });
       },
     );
   }

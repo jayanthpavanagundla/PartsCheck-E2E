@@ -2,11 +2,12 @@ import { test } from "@playwright/test";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerOrders } from "../../pages/Repairer/RepairerOrders.js";
 import { epic } from "allure-js-commons";
-import { loadCompletedNormalQuotePool } from "../../helpers/quotePool.js";
+import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/quotePool.js";
 import { loadQuoteAttachments } from "../../helpers/attachmentPool.js";
 
 test.describe("Quoting Parts Orders", () => {
-  const [quoteNumber] = loadCompletedNormalQuotePool();
+  const [normalQuoteNumber] = loadCompletedNormalQuotePool();
+  const [directQuoteNumber] = loadCompletedDirectQuotePool();
 
   let repairerOrdersPage: RepairerOrders;
   let repairerNavBarPage: RepairerNavBar;
@@ -20,16 +21,30 @@ test.describe("Quoting Parts Orders", () => {
     await page.goto(process.env.REPAIRER_LANDING_URL!);
   });
 
-  test("Supplier Documents Verification", async () => {
+  test("Supplier Documents Verification - Normal Quote", async () => {
     await repairerNavBarPage.clickOrders();
     await repairerOrdersPage.ordersTab.clickAllOrders();
 
-    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(quoteNumber);
-    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(quoteNumber);
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
 
     // Verify the attachments visible here match what the Supplier uploaded
-    const expectedAttachments = loadQuoteAttachments(quoteNumber);
+    const expectedAttachments = loadQuoteAttachments(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.clickDocuments();
+    await repairerOrdersPage.ordersTab.verifyAttachments(expectedAttachments);
+  })
+
+  test("Supplier Documents Verification - Direct Purchase Quote", async () => {
+    await repairerNavBarPage.clickOrders();
+    await repairerOrdersPage.ordersTab.clickAllOrders();
+
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
+
+    // Verify the attachments visible here match what the Supplier uploaded
+    const expectedAttachments = loadQuoteAttachments(directQuoteNumber);
     await repairerOrdersPage.ordersTab.clickDocuments();
     await repairerOrdersPage.ordersTab.verifyAttachments(expectedAttachments);
   })

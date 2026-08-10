@@ -32,29 +32,21 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.clickNewQuote();
 
     // SECTION 01: Quote Info
-    const quoteInfo =
-      await repairerGetPricePage.newQuote.fillQuoteInfoTab("Normal");
-    await step(
-      `Add quote number '${quoteInfo.quoteNr}' to Normal Quote pool`,
-      async () => {
-        addQuoteToNormalPool(quoteInfo.quoteNr);
-      },
-    );
+    const quoteInfo = await repairerGetPricePage.newQuote.fillQuoteInfoTab("Normal");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
     // SECTION 02: Images
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
-    const uploadedImages =
-      await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
+    const uploadedImages = await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
     saveQuoteImages(quoteInfo.quoteNr, uploadedImages);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyImagesTabComplete();
 
     // SECTION 03: Build Quote
     await repairerGetPricePage.newQuote.clickListView();
-    await repairerGetPricePage.newQuote.addFirstPartForAllCategories(2);
+    await repairerGetPricePage.newQuote.addFirstPartForAllCategories(10);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyBuildQuoteTabComplete();
 
@@ -71,13 +63,15 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
     // SECTION 06: Select Time
-    await repairerGetPricePage.newQuote.selectDateTimeNormalQuote(
-      1,
-      "11:00 am",
-    );
+    await repairerGetPricePage.newQuote.selectDateTimeNormalQuote(1,"11:00 am");
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
+
+    // Add the quote number to the Normal Quote pool for later use in the Supplier test
+    await step(`Add quote number '${quoteInfo.quoteNr}' to Normal Quote pool`,async () => {
+      addQuoteToNormalPool(quoteInfo.quoteNr);
+    });
   });
 
   test("Direct Purchase Quote Creation", async () => {
@@ -87,30 +81,21 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.clickNewQuote();
 
     // SECTION 01: Quote Info
-    const quoteInfo = await repairerGetPricePage.newQuote.fillQuoteInfoTab(
-      "Direct",
-    );
-    await step(
-      `Add quote number '${quoteInfo.quoteNr}' to Direct Purchase Quote pool`,
-      async () => {
-        addQuoteToDirectPool(quoteInfo.quoteNr);
-      },
-    );
+    const quoteInfo = await repairerGetPricePage.newQuote.fillQuoteInfoTab("Direct");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
     // SECTION 02: Images
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
-    const uploadedImages =
-      await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
+    const uploadedImages = await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
     saveQuoteImages(quoteInfo.quoteNr, uploadedImages);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyImagesTabComplete();
 
     // SECTION 03: Build Quote
     await repairerGetPricePage.newQuote.clickListView();
-    await repairerGetPricePage.newQuote.addFirstPartForAllCategories(2);
+    await repairerGetPricePage.newQuote.addFirstPartForAllCategories(10);
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyBuildQuoteTabComplete();
 
@@ -131,5 +116,10 @@ test.describe("Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();
+
+    // Add the quote number to the Direct Purchase Quote pool for later use in the Supplier test
+    await step(`Add quote number '${quoteInfo.quoteNr}' to Direct Purchase Quote pool`,async () => {
+      addQuoteToDirectPool(quoteInfo.quoteNr);
+    });
   });
 });

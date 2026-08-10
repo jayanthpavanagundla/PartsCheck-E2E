@@ -29,19 +29,14 @@ test.describe("Submit Quote Flow", () => {
       async () => loadNormalQuotePool(),
     );
     await supplierQuotes.newQuotesRequestTab.openQuoteByNumber(quoteNumber);
-    await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(
-      quoteNumber,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
 
     // Verify the images the Repairer uploaded are visible to the Supplier
     const uploadedImages = loadQuoteImages(quoteNumber);
-    await supplierQuotes.newQuotesRequestTab.verifyImagesCounter(
-      uploadedImages.length,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyImagesCounter(uploadedImages.length);
     await supplierQuotes.newQuotesRequestTab.clickImagesButton();
-    const visibleImages =
-      await supplierQuotes.newQuotesRequestTab.getVisibleImageIdentifiers();
+    const visibleImages = await supplierQuotes.newQuotesRequestTab.getVisibleImageIdentifiers();
     expect(visibleImages).toEqual(uploadedImages);
     await supplierNavBar.closePopup();
     removeQuoteImages(quoteNumber);
@@ -57,22 +52,16 @@ test.describe("Submit Quote Flow", () => {
     }
     saveQuoteAttachments(quoteNumber, attachedNames);
     await supplierNavBar.closePopup();
-    await supplierQuotes.newQuotesRequestTab.verifyAttachmentsCounter(
-      attachedNames.length,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyAttachmentsCounter(attachedNames.length);
 
     // Filling Buy Price and List Price for all line items, then saving and verifying the saved values
-    const filledItems =
-      await supplierQuotes.newQuotesRequestTab.fillAllLineItems();
+    const filledItems = await supplierQuotes.newQuotesRequestTab.fillAllLineItems();
     await supplierQuotes.newQuotesRequestTab.clickSavePrices();
     await supplierQuotes.newQuotesRequestTab.verifyLineItemsSaved(filledItems);
     await supplierQuotes.newQuotesRequestTab.clickSubmitQuote();
-    await step(
-      `Move quote number '${quoteNumber}' to completed Normal Quote pool`,
-      async () => {
-        addToCompletedNormalPool(quoteNumber);
-      },
-    );
+    await step(`Move quote number '${quoteNumber}' to completed Normal Quote pool`,async () => {
+      addToCompletedNormalPool(quoteNumber);
+    });
   });
 
   test("Direct Purchase Order Quote Submission", async () => {
@@ -85,19 +74,14 @@ test.describe("Submit Quote Flow", () => {
       async () => loadDirectQuotePool(),
     );
     await supplierQuotes.newQuotesRequestTab.openQuoteByNumber(quoteNumber);
-    await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(
-      quoteNumber,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
 
     // Verify the images the Repairer uploaded are visible to the Supplier
     const uploadedImages = loadQuoteImages(quoteNumber);
-    await supplierQuotes.newQuotesRequestTab.verifyImagesCounter(
-      uploadedImages.length,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyImagesCounter(uploadedImages.length);
     await supplierQuotes.newQuotesRequestTab.clickImagesButton();
-    const visibleImages =
-      await supplierQuotes.newQuotesRequestTab.getVisibleImageIdentifiers();
+    const visibleImages = await supplierQuotes.newQuotesRequestTab.getVisibleImageIdentifiers();
     expect(visibleImages).toEqual(uploadedImages);
     await supplierNavBar.closePopup();
     removeQuoteImages(quoteNumber);
@@ -107,27 +91,20 @@ test.describe("Submit Quote Flow", () => {
     const attachedNames: string[] = [];
     await supplierQuotes.newQuotesRequestTab.clickAttachFileButton();
     for (const filePath of attachmentFiles) {
-      const fileName =
-        await supplierQuotes.newQuotesRequestTab.attachFile(filePath);
+      const fileName = await supplierQuotes.newQuotesRequestTab.attachFile(filePath);
       attachedNames.push(fileName);
     }
     saveQuoteAttachments(quoteNumber, attachedNames);
     await supplierNavBar.closePopup();
-    await supplierQuotes.newQuotesRequestTab.verifyAttachmentsCounter(
-      attachedNames.length,
-    );
+    await supplierQuotes.newQuotesRequestTab.verifyAttachmentsCounter(attachedNames.length);
     
     // Filling Buy Price and List Price for all line items, then saving and verifying the saved values
-    const filledItems =
-      await supplierQuotes.newQuotesRequestTab.fillAllLineItems();
+    const filledItems = await supplierQuotes.newQuotesRequestTab.fillAllLineItems();
     await supplierQuotes.newQuotesRequestTab.clickSavePrices();
     await supplierQuotes.newQuotesRequestTab.verifyLineItemsSaved(filledItems);
     await supplierQuotes.newQuotesRequestTab.clickSubmitQuote();
-    await step(
-      `Move quote number '${quoteNumber}' to completed Direct Purchase Quote pool`,
-      async () => {
-        addToCompletedDirectPool(quoteNumber);
-      },
-    );
+    await step(`Move quote number '${quoteNumber}' to completed Direct Purchase Quote pool`, async () => {
+      addToCompletedDirectPool(quoteNumber);
+    });
   });
 });
