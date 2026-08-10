@@ -96,7 +96,7 @@ export default defineConfig({
       name: 'partscheck-supplier',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/supplier.json' },
       testMatch: /.*\.supplier\.spec\.ts/,
-      dependencies: ['supplier-setup'],
+      dependencies: ['supplier-setup', 'partscheck-repairer'],
     },
     {
       name: 'partscheck-supplier-admin',
@@ -104,13 +104,18 @@ export default defineConfig({
       testMatch: /.*\.supplierAdmin\.spec\.ts/,
       dependencies: ['supplierAdmin-setup'],
     },
-    // Catch-all: everything not matched above runs as the normal repairer.
     {
       name: 'partscheck-repairer',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
       testMatch: /.*\.spec\.ts/,
-      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts/,
+      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts|.*checkPrice\.spec\.ts/,
       dependencies: ['repairer-setup'],
+    },
+    {
+      name: 'partscheck-repairer-checkprice',
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
+      testMatch: /.*checkPrice\.spec\.ts/,
+      dependencies: ['repairer-setup', 'partscheck-supplier'],
     },
   ],
 });

@@ -1,9 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const poolPath = path.join(__dirname, "quotePool.json");
-const completedPoolPath = path.join(__dirname, "completedQuotePool.json");
-
 function readJsonArray(filePath: string): string[] {
   if (!fs.existsSync(filePath)) {
     return [];
@@ -20,41 +17,76 @@ function writeJsonArray(filePath: string, values: string[]) {
   fs.writeFileSync(filePath, JSON.stringify(values, null, 2));
 }
 
-// Load the active (in-progress) pool.
-export function loadQuotePool(): string[] {
-  return readJsonArray(poolPath);
+interface QuotePool {
+  load(): string[];
+  add(quoteNumber: string): string[];
+  remove(quoteNumber: string): string[];
+  loadCompleted(): string[];
+  addToCompleted(quoteNumber: string): string[];
 }
 
-// Add a quote number to the active pool and persist it.
-export function addQuoteToPool(quoteNumber: string): string[] {
-  const quotes = loadQuotePool(); // always read latest
-  if (!quotes.includes(quoteNumber)) {
-    quotes.push(quoteNumber);
+// Normal Quote and Direct Purchase quotes follow separate flows end-to-end,
+// so each gets its own active/completed pool pair (quote numbers must not
+// cross over between them).
+function createQuotePool(poolFile: string, completedPoolFile: string): QuotePool {
+  const poolPath = path.join(__dirname, poolFile);
+  const completedPoolPath = path.join(__dirname, completedPoolFile);
+
+  function load(): string[] {
+    return readJsonArray(poolPath);
   }
-  writeJsonArray(poolPath, quotes);
-  return quotes;
-}
 
-// Remove a quote number from the active pool.
-export function removeQuoteFromPool(quoteNumber: string): string[] {
-  const updated = loadQuotePool().filter((q) => q !== quoteNumber);
-  writeJsonArray(poolPath, updated);
-  return updated;
-}
-
-// Load the completed pool.
-export function loadCompletedQuotePool(): string[] {
-  return readJsonArray(completedPoolPath);
-}
-
-// Move a quote number into the completed pool once the quote process has
-// fully gone through (e.g. after the "submitted successfully" confirmation).
-export function addToCompletedPool(quoteNumber: string): string[] {
-  const completed = loadCompletedQuotePool();
-  if (!completed.includes(quoteNumber)) {
-    completed.push(quoteNumber);
+  function add(quoteNumber: string): string[] {
+    const quotes = load(); // always read latest
+    if (!quotes.includes(quoteNumber)) {
+      quotes.push(quoteNumber);
+    }
+    writeJsonArray(poolPath, quotes);
+    return quotes;
   }
-  writeJsonArray(completedPoolPath, completed);
-  removeQuoteFromPool(quoteNumber);
-  return completed;
+
+  function remove(quoteNumber: string): string[] {
+    const updated = load().filter((q) => q !== quoteNumber);
+    writeJsonArray(poolPath, updated);
+    return updated;
+  }
+
+  function loadCompleted(): string[] {
+    return readJsonArray(completedPoolPath);
+  }
+
+  function addToCompleted(quoteNumber: string): string[] {
+    const completed = loadCompleted();
+    if (!completed.includes(quoteNumber)) {
+      completed.push(quoteNumber);
+    }
+    writeJsonArray(completedPoolPath, completed);
+    remove(quoteNumber);
+    return completed;
+  }
+
+  return { load, add, remove, loadCompleted, addToCompleted };
 }
+
+const normalQuotePool = createQuotePool(
+  "normalQuotePool.json",
+  "completedNormalQuotePool.json",
+);
+const directQuotePool = createQuotePool(
+  "directQuotePool.json",
+  "completedDirectQuotePool.json",
+);
+
+// --- Normal Quote pool -------------------------------------------------------
+export const loadNormalQuotePool = normalQuotePool.load;
+export const addQuoteToNormalPool = normalQuotePool.add;
+export const removeQuoteFromNormalPool = normalQuotePool.remove;
+export const loadCompletedNormalQuotePool = normalQuotePool.loadCompleted;
+export const addToCompletedNormalPool = normalQuotePool.addToCompleted;
+
+// --- Direct Purchase Quote pool ----------------------------------------------
+export const loadDirectQuotePool = directQuotePool.load;
+export const addQuoteToDirectPool = directQuotePool.add;
+export const removeQuoteFromDirectPool = directQuotePool.remove;
+export const loadCompletedDirectQuotePool = directQuotePool.loadCompleted;
+export const addToCompletedDirectPool = directQuotePool.addToCompleted;

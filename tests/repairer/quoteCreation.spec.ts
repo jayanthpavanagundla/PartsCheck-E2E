@@ -2,8 +2,8 @@ import { test } from "@playwright/test";
 import path from "path";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerGetPrice } from "../../pages/Repairer/RepairerGetPrice.js";
-import { epic } from "allure-js-commons";
-import { addQuoteToPool, addToCompletedPool } from "../../helpers/quotePool.js";
+import { epic, step } from "allure-js-commons";
+import {addQuoteToNormalPool,addQuoteToDirectPool} from "../../helpers/quotePool.js";
 import { saveQuoteImages } from "../../helpers/imagePool.js";
 
 const imageFiles = [
@@ -34,8 +34,12 @@ test.describe("Quote Creation Flow", () => {
     // SECTION 01: Quote Info
     const quoteInfo =
       await repairerGetPricePage.newQuote.fillQuoteInfoTab("Normal");
-    // Add Quote Number Quote Pool
-    addQuoteToPool(quoteInfo.quoteNr);
+    await step(
+      `Add quote number '${quoteInfo.quoteNr}' to Normal Quote pool`,
+      async () => {
+        addQuoteToNormalPool(quoteInfo.quoteNr);
+      },
+    );
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
@@ -86,8 +90,12 @@ test.describe("Quote Creation Flow", () => {
     const quoteInfo = await repairerGetPricePage.newQuote.fillQuoteInfoTab(
       "Direct",
     );
-    // Add Quote Number Quote Pool
-    addQuoteToPool(quoteInfo.quoteNr);
+    await step(
+      `Add quote number '${quoteInfo.quoteNr}' to Direct Purchase Quote pool`,
+      async () => {
+        addQuoteToDirectPool(quoteInfo.quoteNr);
+      },
+    );
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
