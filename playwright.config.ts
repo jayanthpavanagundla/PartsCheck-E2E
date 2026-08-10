@@ -96,11 +96,7 @@ export default defineConfig({
       name: 'partscheck-supplier',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/supplier.json' },
       testMatch: /.*\.supplier\.spec\.ts/,
-      // Supplier specs consume quotes/images the Repairer specs produce
-      // (see helpers/quotePool.ts, helpers/imagePool.ts), so the full
-      // repairer project must finish before any supplier test starts.
       dependencies: ['supplier-setup', 'partscheck-repairer'],
-      // dependencies: ['supplier-setup',],
     },
     {
       name: 'partscheck-supplier-admin',
@@ -108,13 +104,18 @@ export default defineConfig({
       testMatch: /.*\.supplierAdmin\.spec\.ts/,
       dependencies: ['supplierAdmin-setup'],
     },
-    // Catch-all: everything not matched above runs as the normal repairer.
     {
       name: 'partscheck-repairer',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
       testMatch: /.*\.spec\.ts/,
-      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts/,
+      testIgnore: /.*\.(repairerAdmin|supplier|supplierAdmin)\.spec\.ts|.*checkPrice\.spec\.ts/,
       dependencies: ['repairer-setup'],
+    },
+    {
+      name: 'partscheck-repairer-checkprice',
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/repairer.json' },
+      testMatch: /.*checkPrice\.spec\.ts/,
+      dependencies: ['repairer-setup', 'partscheck-supplier'],
     },
   ],
 });
