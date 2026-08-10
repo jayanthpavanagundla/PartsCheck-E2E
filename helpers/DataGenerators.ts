@@ -27,6 +27,15 @@ export class DataGenerators {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  /** Returns today's date formatted as DD/MM/YYYY (or a custom DD/MM/YYYY-based format) */
+  static currentDate(format: string = "DD/MM/YYYY"): string {
+    const date = new Date();
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yyyy = String(date.getFullYear());
+    return format.replace("DD", dd).replace("MM", mm).replace("YYYY", yyyy);
+  }
+
   /** Returns a random colour name */
   static randomColor(): string {
     const colors = [
