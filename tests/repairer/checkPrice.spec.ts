@@ -17,7 +17,7 @@ test.describe("Check Price for Submit Quote", () => {
     await page.goto(process.env.REPAIRER_LANDING_URL!);
   });
 
-  test("Normal Quote Price Check for Submit Quote", async ({page}) => {
+  test("Price Check for Submit Quote - Normal Quote", async ({page}) => {
     await repairerNavBarPage.clickCheckPrice();
     await repairerCheckPricePage.activeQuotes.clickActiveQuotes();
 

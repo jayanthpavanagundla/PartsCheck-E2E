@@ -1,5 +1,6 @@
-import { Locator, Page, expect } from "@playwright/test";
+import { FrameLocator, Locator, Page, expect } from "@playwright/test";
 import { step } from "allure-js-commons";
+import { DataGenerators } from "../../helpers/DataGenerators";
 //=============================ORDERS TAB=============================//
 export class OrdersTab {
   // Locators
@@ -8,6 +9,15 @@ export class OrdersTab {
   quoteText: Locator;
   documentsTab: Locator;
   documentRows: Locator;
+  cancelItemsButton: Locator;
+  itemSelectCheckboxes: Locator;
+  referenceInput: Locator;
+  updatePurchaserOrderButton: Locator;
+  cancelItemFrame: FrameLocator;
+  cancelReasonSelect: Locator;
+  cancelItemOkButton: Locator;
+  showCancelledPartsCheckbox: Locator;
+  cancelledRows: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.orders = this.page.locator("span.topTabText", {
@@ -19,6 +29,15 @@ export class OrdersTab {
       hasText: "Documents",
     });
     this.documentRows = this.page.locator(".show .docRow:not([style])");
+    this.cancelItemsButton = this.page.locator("#cancelButton");
+    this.itemSelectCheckboxes = this.page.locator(".itemSelectCheckbox");
+    this.referenceInput = this.page.locator("#RIN");
+    this.updatePurchaserOrderButton = this.page.locator("#updatePoPurchaser");
+    this.cancelItemFrame = this.page.frameLocator("iframe.cboxIframe");
+    this.cancelReasonSelect = this.cancelItemFrame.locator("#cancelItem");
+    this.cancelItemOkButton = this.cancelItemFrame.locator(".iframeOKButton");
+    this.showCancelledPartsCheckbox = this.page.locator("#removedPartsDiv");
+    this.cancelledRows = this.page.locator(".canceldRow");
   }
   // Methods
   async clickAllOrders() {
@@ -88,10 +107,96 @@ export class OrdersTab {
     const expectedSorted = [...expectedFileNames].sort();
     const actualSorted = [...actualFileNames].sort();
 
-    await step(
-      `Verify attached documents:\nExpected: [${expectedSorted.join(", ")}]\nReceived: [${actualSorted.join(", ")}]`,
-      async () => {
+    await step(`Verify attached documents:\nExpected: [${expectedSorted.join(", ")}]\nReceived: [${actualSorted.join(", ")}]`, async () => {
         expect(actualSorted).toEqual(expectedSorted);
+      },
+    );
+  }
+
+  async clickCancelItems(): Promise<void> {
+    await step("Click 'Cancel Items' button", async () => {
+      await this.cancelItemsButton.click();
+    });
+  }
+
+  private pickRandomIndices(count: number, total: number): number[] {
+    const indices = Array.from({ length: total }, (_, i) => i);
+    const picked: number[] = [];
+    for (let i = 0; i < count && indices.length > 0; i++) {
+      const randomIndex = Math.floor(Math.random() * indices.length);
+      picked.push(indices.splice(randomIndex, 1)[0]);
+    }
+    return picked;
+  }
+
+  async selectItemsToCancel(count: number = 4): Promise<string[]> {
+    const total = await this.itemSelectCheckboxes.count();
+    const indices = this.pickRandomIndices(count, total);
+
+    const selections: { checkboxId: string; description: string }[] = [];
+    for (const index of indices) {
+      const checkbox = this.itemSelectCheckboxes.nth(index);
+      const checkboxId = await checkbox.getAttribute("id");
+      const itemId = await checkbox.getAttribute("data-id");
+      const description = (
+        await this.page.locator(`#PO_ITEM_${itemId} .orderDes`).innerText()
+      )
+        .split("\n")[0]
+        .trim();
+      selections.push({ checkboxId: checkboxId!, description });
+    }
+
+    await step(
+      `Select ${count} order items to cancel: [${selections.map((s) => s.description).join(", ")}]`,
+      async () => {
+        for (const { checkboxId } of selections) {
+          await this.page.locator(`label[for="${checkboxId}"]`).click();
+        }
+      },
+    );
+
+    return selections.map((s) => s.description);
+  }
+
+  async fillCancelReferenceNumber(quoteNumber: string): Promise<string> {
+    return await step("Fill cancel reference number in 'RIN' field", async () => {
+        const reference = `CANCEL${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+        await this.referenceInput.fill(reference);
+        return reference;
+      },
+    );
+  }
+
+  async clickUpdatePurchaserOrder(): Promise<void> {
+    await step("Click 'update' to submit the cancel request", async () => {
+      await this.updatePurchaserOrderButton.click();
+    });
+  }
+
+  async selectCancelReasonAndConfirm(): Promise<string> {
+    return await step("Select a random cancel reason and confirm in 'Cancel Item' dialog", async () => {
+        await expect(this.cancelReasonSelect).toBeVisible();
+        const reason = await DataGenerators.selectRandomOption(this.cancelReasonSelect);
+        await this.cancelItemOkButton.click();
+        return reason;
+      },
+    );
+  }
+
+  async verifyCancelledItemsVisible(cancelledItems: string[]): Promise<void> {
+    await step("Show cancelled parts and verify cancelled items are visible", async () => {
+        if ((await this.showCancelledPartsCheckbox.count()) > 0) {
+          await this.page.locator('label[for="removedPartsDiv"]').click();
+        }
+        await expect(this.cancelledRows.first()).toBeVisible();
+
+        for (const item of cancelledItems) {
+          await step(`Verify cancelled item '${item}' is visible`, async () => {
+            await expect(
+              this.cancelledRows.filter({ hasText: item }).first(),
+            ).toBeVisible();
+          });
+        }
       },
     );
   }

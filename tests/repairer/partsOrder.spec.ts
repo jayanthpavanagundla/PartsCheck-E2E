@@ -49,4 +49,36 @@ test.describe("Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.verifyAttachments(expectedAttachments);
   })
 
+  test("Cancel Items - Normal Quote", async ({page}) => {
+    await repairerNavBarPage.clickOrders();
+    await repairerOrdersPage.ordersTab.clickAllOrders();
+
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
+
+    await repairerOrdersPage.ordersTab.clickCancelItems();
+    const cancelledItems = await repairerOrdersPage.ordersTab.selectItemsToCancel(4);
+    await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
+  })
+
+  test("Cancel Items - Direct Purchase Quote", async ({page}) => {
+    await repairerNavBarPage.clickOrders();
+    await repairerOrdersPage.ordersTab.clickAllOrders();
+
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
+
+    await repairerOrdersPage.ordersTab.clickCancelItems();
+    const cancelledItems = await repairerOrdersPage.ordersTab.selectItemsToCancel(4);
+    await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
+  })
+
 });
