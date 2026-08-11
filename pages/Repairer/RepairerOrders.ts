@@ -19,16 +19,18 @@ export class OrdersTab {
   showCancelledPartsCheckbox: Locator;
   cancelledRows: Locator;
   receiptDateInput: Locator;
+  searchedQuoteTabText: Locator;
+  creditRequestButton: Locator;
+  creditItemFrame: FrameLocator;
+  creditRequestByDropdown: Locator;
+  creditReasonSelect: Locator;
+  creditItemOkButton: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
-    this.orders = this.page.locator("span.topTabText", {
-      hasText: "All Orders",
-    });
+    this.orders = this.page.locator("span.topTabText", {hasText: "All Orders"});
     this.allOrdersGrid = this.page.locator("#all");
     this.quoteText = this.page.locator("div.quoteText");
-    this.documentsTab = this.page.locator("span.topTabText", {
-      hasText: "Documents",
-    });
+    this.documentsTab = this.page.locator("span.topTabText", {hasText: "Documents"});
     this.documentRows = this.page.locator(".show .docRow:not([style])");
     this.cancelItemsButton = this.page.locator("#cancelButton");
     this.itemSelectCheckboxes = this.page.locator(".itemSelectCheckbox");
@@ -40,6 +42,12 @@ export class OrdersTab {
     this.showCancelledPartsCheckbox = this.page.locator("#removedPartsDiv");
     this.cancelledRows = this.page.locator(".canceldRow");
     this.receiptDateInput = this.page.locator("#RECEIPTDATE_DATE");
+    this.searchedQuoteTabText = this.page.locator(".topTab.topTabSelected .topTabText");
+    this.creditRequestButton = this.page.locator("#creditButton");
+    this.creditItemFrame = this.page.frameLocator("iframe.cboxIframe");
+    this.creditRequestByDropdown = this.creditItemFrame.locator("#CRL");
+    this.creditReasonSelect = this.creditItemFrame.locator("#CRR");
+    this.creditItemOkButton = this.creditItemFrame.locator(".iframeOKButton");
   }
   // Methods
   async clickAllOrders() {
@@ -199,7 +207,7 @@ export class OrdersTab {
     );
   }
 
-  async selectAllItemsToReceive(): Promise<{ itemId: string; description: string }[]> {
+  async selectAllItems(): Promise<{ itemId: string; description: string }[]> {
     const total = await this.itemSelectCheckboxes.count();
 
     const selections: { checkboxId: string; itemId: string; description: string }[] = [];
@@ -211,7 +219,7 @@ export class OrdersTab {
       selections.push({ checkboxId: checkboxId!, itemId: itemId!, description });
     }
 
-    await step(`Select all ${total} order items to receive: [${selections.map((s) => s.description).join(", ")}]`, async () => {
+    await step(`Select all ${total} order items: [${selections.map((s) => s.description).join(", ")}]`, async () => {
         for (const { checkboxId } of selections) {
           await this.page.locator(`label[for="${checkboxId}"]`).click();
         }
@@ -246,6 +254,70 @@ export class OrdersTab {
           await step(`Verify item '${description}' status shows 'Received On ${expectedDate}'`, async () => {
               await expect(this.itemStatus(itemId)).toContainText("Received");
               await expect(this.itemStatus(itemId)).toContainText(expectedDate);
+            },
+          );
+        }
+      },
+    );
+  }
+
+  async verifySearchedQuoteNumber(quoteNumber: string): Promise<void> {
+    await step(`Verify searched quote number '${quoteNumber}' matches the search results tab`, async () => {
+        await expect(this.searchedQuoteTabText).toHaveText(quoteNumber);
+      },
+    );
+  }
+
+  purchaserOrderRow(supplier: string): Locator {
+    return this.page
+      .locator(".sub_containter .sub")
+      .filter({ has: this.page.locator('a[href*="orders-grid.php"]') })
+      .filter({ has: this.page.locator(".info", { hasText: supplier }) })
+      .first();
+  }
+
+  async openPurchaserOrderBySupplier(supplier: string): Promise<void> {
+    await step(`Open purchaser order for supplier '${supplier}' from search results`, async () => {
+        await this.purchaserOrderRow(supplier)
+          .getByText("Open", { exact: true })
+          .click();
+      },
+    );
+  }
+
+  async clickCreditRequest(): Promise<void> {
+    await step("Click 'Credit Request' button", async () => {
+      await this.creditRequestButton.click();
+    });
+  }
+
+  async fillCreditReferenceNumber(quoteNumber: string): Promise<string> {
+    return await step("Fill credit reference number in 'RIN' field", async () => {
+        const reference = `CR-${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+        await this.referenceInput.fill(reference);
+        return reference;
+      },
+    );
+  }
+
+  async selectCreditRequestDetailsAndConfirm(): Promise<{requestedBy: string; reason: string;}> {
+    return await step("Select a random requester and reason, then confirm in 'Credit Item' dialog", async () => {
+        await expect(this.creditRequestByDropdown).toBeVisible();
+        const requestedBy = await DataGenerators.selectRandomOption(this.creditRequestByDropdown);
+        const reason = await DataGenerators.selectRandomOption(this.creditReasonSelect);
+        await this.creditItemOkButton.click();
+        return { requestedBy, reason };
+      },
+    );
+  }
+
+  async verifyItemsCreditPending(creditedItems: { itemId: string; description: string }[]): Promise<void> {
+    await step("Verify all credited items show 'Credit Pending' status", async () => {
+        for (const { itemId, description } of creditedItems) {
+          await step(`Verify item '${description}' status shows 'Credit Pending'`, async () => {
+              const status = this.page.locator(`#PO_ITEM_${itemId} .orderStatus:visible`).first();
+              await expect(status).toContainText("Credit Pending");
+              await expect(status).toContainText("View Credit");
             },
           );
         }
