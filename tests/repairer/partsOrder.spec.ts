@@ -89,7 +89,7 @@ test.describe("Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
 
-    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItemsToReceive();
+    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItems();
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(normalQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
@@ -104,12 +104,42 @@ test.describe("Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(directQuoteNumber);
     await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
 
-    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItemsToReceive();
+    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItems();
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(directQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
     await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
   })
 
+  test("Items Credit Request - Normal Quote", async ({page}) => {
+    const supplier = "s1";
 
+    await repairerNavBarPage.searchForResult(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.openPurchaserOrderBySupplier(supplier);
+
+    await repairerOrdersPage.ordersTab.clickCreditRequest();
+    const creditedItems = await repairerOrdersPage.ordersTab.selectAllItems();
+    await repairerOrdersPage.ordersTab.fillCreditReferenceNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.getInvoiceDate();
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.selectCreditRequestDetailsAndConfirm();
+    await repairerOrdersPage.ordersTab.verifyItemsCreditPending(creditedItems);
+  })
+
+  test("Items Credit Request - Direct Purchase Quote", async ({page}) => {
+    const supplier = "s1";
+
+    await repairerNavBarPage.searchForResult(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.openPurchaserOrderBySupplier(supplier);
+
+    await repairerOrdersPage.ordersTab.clickCreditRequest();
+    const creditedItems = await repairerOrdersPage.ordersTab.selectAllItems();
+    await repairerOrdersPage.ordersTab.fillCreditReferenceNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.getInvoiceDate();
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.selectCreditRequestDetailsAndConfirm();
+    await repairerOrdersPage.ordersTab.verifyItemsCreditPending(creditedItems);
+  })
 });
