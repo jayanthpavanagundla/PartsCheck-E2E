@@ -18,6 +18,7 @@ export class OrdersTab {
   cancelItemOkButton: Locator;
   showCancelledPartsCheckbox: Locator;
   cancelledRows: Locator;
+  receiptDateInput: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
     this.orders = this.page.locator("span.topTabText", {
@@ -38,6 +39,7 @@ export class OrdersTab {
     this.cancelItemOkButton = this.cancelItemFrame.locator(".iframeOKButton");
     this.showCancelledPartsCheckbox = this.page.locator("#removedPartsDiv");
     this.cancelledRows = this.page.locator(".canceldRow");
+    this.receiptDateInput = this.page.locator("#RECEIPTDATE_DATE");
   }
   // Methods
   async clickAllOrders() {
@@ -185,17 +187,67 @@ export class OrdersTab {
 
   async verifyCancelledItemsVisible(cancelledItems: string[]): Promise<void> {
     await step("Show cancelled parts and verify cancelled items are visible", async () => {
-        if ((await this.showCancelledPartsCheckbox.count()) > 0) {
-          await this.page.locator('label[for="removedPartsDiv"]').click();
-        }
+        await this.page.locator('label[for="removedPartsDiv"]').click();
         await expect(this.cancelledRows.first()).toBeVisible();
 
         for (const item of cancelledItems) {
           await step(`Verify cancelled item '${item}' is visible`, async () => {
-            await expect(
-              this.cancelledRows.filter({ hasText: item }).first(),
-            ).toBeVisible();
+            await expect(this.cancelledRows.filter({ hasText: item }).first()).toBeVisible();
           });
+        }
+      },
+    );
+  }
+
+  async selectAllItemsToReceive(): Promise<{ itemId: string; description: string }[]> {
+    const total = await this.itemSelectCheckboxes.count();
+
+    const selections: { checkboxId: string; itemId: string; description: string }[] = [];
+    for (let index = 0; index < total; index++) {
+      const checkbox = this.itemSelectCheckboxes.nth(index);
+      const checkboxId = await checkbox.getAttribute("id");
+      const itemId = await checkbox.getAttribute("data-id");
+      const description = (await this.page.locator(`#PO_ITEM_${itemId} .orderDes`).innerText()).split("\n")[0].trim();
+      selections.push({ checkboxId: checkboxId!, itemId: itemId!, description });
+    }
+
+    await step(`Select all ${total} order items to receive: [${selections.map((s) => s.description).join(", ")}]`, async () => {
+        for (const { checkboxId } of selections) {
+          await this.page.locator(`label[for="${checkboxId}"]`).click();
+        }
+      },
+    );
+
+    return selections.map(({ itemId, description }) => ({ itemId, description }));
+  }
+
+  async fillReceiptReferenceNumber(quoteNumber: string): Promise<string> {
+    return await step("Fill receipt reference number in 'RIN' field", async () => {
+        const reference = `RP-${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+        await this.referenceInput.fill(reference);
+        return reference;
+      },
+    );
+  }
+
+  async getInvoiceDate(): Promise<string> {
+    return await step("Get invoice/receipt date", async () => {
+      return await this.receiptDateInput.inputValue();
+    });
+  }
+
+  itemStatus(itemId: string): Locator {
+    return this.page.locator(`#EXTRA_INFO_${itemId}`);
+  }
+
+  async verifyItemsReceivedOnDate( receivedItems: { itemId: string; description: string }[], expectedDate: string): Promise<void> {
+    await step(`Verify all received items show status 'Received On ${expectedDate}'`, async () => {
+        for (const { itemId, description } of receivedItems) {
+          await step(`Verify item '${description}' status shows 'Received On ${expectedDate}'`, async () => {
+              await expect(this.itemStatus(itemId)).toContainText("Received");
+              await expect(this.itemStatus(itemId)).toContainText(expectedDate);
+            },
+          );
         }
       },
     );
