@@ -39,7 +39,7 @@ function createQuotePool(poolFile: string, completedPoolFile: string): QuotePool
   function add(quoteNumber: string): string[] {
     const quotes = load(); // always read latest
     if (!quotes.includes(quoteNumber)) {
-      quotes.push(quoteNumber);
+      quotes.unshift(quoteNumber);
     }
     writeJsonArray(poolPath, quotes);
     return quotes;
@@ -58,7 +58,7 @@ function createQuotePool(poolFile: string, completedPoolFile: string): QuotePool
   function addToCompleted(quoteNumber: string): string[] {
     const completed = loadCompleted();
     if (!completed.includes(quoteNumber)) {
-      completed.push(quoteNumber);
+      completed.unshift(quoteNumber);
     }
     writeJsonArray(completedPoolPath, completed);
     remove(quoteNumber);

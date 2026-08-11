@@ -21,7 +21,7 @@ test.describe("Quoting Parts Orders", () => {
     await page.goto(process.env.REPAIRER_LANDING_URL!);
   });
 
-  test("Supplier Documents Verification - Normal Quote", async () => {
+  test("Supplier Documents Verification - Normal Quote", async ({page}) => {
     await repairerNavBarPage.clickOrders();
     await repairerOrdersPage.ordersTab.clickAllOrders();
 
@@ -35,7 +35,7 @@ test.describe("Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.verifyAttachments(expectedAttachments);
   })
 
-  test("Supplier Documents Verification - Direct Purchase Quote", async () => {
+  test("Supplier Documents Verification - Direct Purchase Quote", async ({page}) => {
     await repairerNavBarPage.clickOrders();
     await repairerOrdersPage.ordersTab.clickAllOrders();
 
@@ -80,5 +80,36 @@ test.describe("Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
     await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
   })
+
+  test("Receive Items - Normal Quote", async ({page}) => {
+    await repairerNavBarPage.clickOrders();
+    await repairerOrdersPage.ordersTab.clickAllOrders();
+
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(normalQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
+
+    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItemsToReceive();
+    await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(normalQuoteNumber);
+    const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
+  })
+
+  test("Receive Items - Direct Purchase Quote", async ({page}) => {
+    await repairerNavBarPage.clickOrders();
+    await repairerOrdersPage.ordersTab.clickAllOrders();
+
+    const orderNumber = await repairerOrdersPage.ordersTab.getOrderNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.openOrderByQuoteNumber(directQuoteNumber);
+    await repairerOrdersPage.ordersTab.verifyOrderNumber(orderNumber);
+
+    const receivedItems = await repairerOrdersPage.ordersTab.selectAllItemsToReceive();
+    await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(directQuoteNumber);
+    const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
+    await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
+  })
+
 
 });
