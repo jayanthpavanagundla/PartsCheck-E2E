@@ -519,7 +519,7 @@ export class NewQuoteTab extends BasePage {
   }
 
   async addFirstPartForAllCategories(maxCategories?: number) {
-    await step("Add first part for every category", async () => {
+    await step("Add Random part for every category", async () => {
       await this.waitForCategoriesLoaded();
       const categoryCount = await this.categoryList.count();
       const limit =

@@ -12,12 +12,12 @@ const imageFiles = [
   path.join(__dirname, "../../helpers/Img03.jpg"),
 ];
 
-test.describe("Quote Creation Flow", () => {
+test.describe("Repairer: Quote Creation Flow", () => {
   let repairerGetPricePage: RepairerGetPrice;
   let repairerNavBarPage: RepairerNavBar;
 
   test.beforeEach(async ({ page }) => {
-    epic("Quote Creation Flow");
+    epic("Repairer: Quote Creation Flow");
 
     repairerGetPricePage = new RepairerGetPrice(page);
     repairerNavBarPage = new RepairerNavBar(page);

@@ -5,7 +5,7 @@ import { epic } from "allure-js-commons";
 import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/quotePool.js";
 import { loadQuoteAttachments } from "../../helpers/attachmentPool.js";
 
-test.describe("Quoting Parts Orders", () => {
+test.describe("Repairer: Quoting Parts Orders", () => {
   const [normalQuoteNumber] = loadCompletedNormalQuotePool();
   const [directQuoteNumber] = loadCompletedDirectQuotePool();
 
@@ -13,7 +13,7 @@ test.describe("Quoting Parts Orders", () => {
   let repairerNavBarPage: RepairerNavBar;
 
   test.beforeEach(async ({ page }) => {
-    epic("Quoting Parts Orders");
+    epic("Repairer: Quoting Parts Orders");
 
     repairerOrdersPage = new RepairerOrders(page);
     repairerNavBarPage = new RepairerNavBar(page);

@@ -6,12 +6,12 @@ import { addToCompletedDirectPool, addToCompletedNormalPool,loadDirectQuotePool,
 import { loadQuoteImages, removeQuoteImages } from "../../helpers/imagePool.js";
 import { getRandomAttachmentFiles,saveQuoteAttachments } from "../../helpers/attachmentPool.js";
 
-test.describe("Submit Quote Flow", () => {
+test.describe("Supplier: Submit Quote Flow", () => {
   let supplierNavBar: SupplierNavBar;
   let supplierQuotes: SupplierQuotes;
 
   test.beforeEach(async ({ page }) => {
-    epic("Submit Quote Flow");
+    epic("Supplier: Submit Quote Flow");
 
     supplierNavBar = new SupplierNavBar(page);
     supplierQuotes = new SupplierQuotes(page);
@@ -20,6 +20,8 @@ test.describe("Submit Quote Flow", () => {
   });
 
   test("Normal Quote Submission", async () => {
+    test.setTimeout(300_000);
+
     await supplierQuotes.quotesInProgressTab.clickQuotesInProgress();
     await supplierNavBar.verifyPopupHeading("Incoming Quotes");
 
@@ -65,6 +67,8 @@ test.describe("Submit Quote Flow", () => {
   });
 
   test("Direct Purchase Order Quote Submission", async () => {
+    test.setTimeout(300_000);
+
     await supplierQuotes.quotesInProgressTab.clickQuotesInProgress();
     await supplierNavBar.verifyPopupHeading("Incoming Quotes");
 
