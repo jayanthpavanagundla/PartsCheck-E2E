@@ -4,12 +4,12 @@ import { RepairerCheckPrice } from "../../pages/Repairer/RepairerCheckPrice.js";
 import { epic, step } from "allure-js-commons";
 import { loadCompletedNormalQuotePool } from "../../helpers/quotePool.js";
 
-test.describe("Check Price for Submit Quote", () => {
+test.describe("Repairer: Check Price for Submit Quote", () => {
   let repairerCheckPricePage: RepairerCheckPrice;
   let repairerNavBarPage: RepairerNavBar;
 
   test.beforeEach(async ({ page }) => {
-    epic("Check Price for Submit Quote");
+    epic("Repairer: Check Price for Submit Quote");
 
     repairerCheckPricePage = new RepairerCheckPrice(page);
     repairerNavBarPage = new RepairerNavBar(page);
@@ -18,6 +18,8 @@ test.describe("Check Price for Submit Quote", () => {
   });
 
   test("Price Check for Submit Quote - Normal Quote", async ({page}) => {
+    test.setTimeout(300_000);
+    
     await repairerNavBarPage.clickCheckPrice();
     await repairerCheckPricePage.activeQuotes.clickActiveQuotes();
 

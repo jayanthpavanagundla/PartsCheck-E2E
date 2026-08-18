@@ -23,6 +23,7 @@ interface QuotePool {
   remove(quoteNumber: string): string[];
   loadCompleted(): string[];
   addToCompleted(quoteNumber: string): string[];
+  removeFromCompleted(quoteNumber: string): string[];
 }
 
 // Normal Quote and Direct Purchase quotes follow separate flows end-to-end,
@@ -65,7 +66,13 @@ function createQuotePool(poolFile: string, completedPoolFile: string): QuotePool
     return completed;
   }
 
-  return { load, add, remove, loadCompleted, addToCompleted };
+  function removeFromCompleted(quoteNumber: string): string[] {
+    const updated = loadCompleted().filter((q) => q !== quoteNumber);
+    writeJsonArray(completedPoolPath, updated);
+    return updated;
+  }
+
+  return { load, add, remove, loadCompleted, addToCompleted, removeFromCompleted };
 }
 
 const normalQuotePool = createQuotePool(
@@ -83,6 +90,7 @@ export const addQuoteToNormalPool = normalQuotePool.add;
 export const removeQuoteFromNormalPool = normalQuotePool.remove;
 export const loadCompletedNormalQuotePool = normalQuotePool.loadCompleted;
 export const addToCompletedNormalPool = normalQuotePool.addToCompleted;
+export const removeQuoteFromCompletedNormalPool = normalQuotePool.removeFromCompleted;
 
 // --- Direct Purchase Quote pool ----------------------------------------------
 export const loadDirectQuotePool = directQuotePool.load;
@@ -90,3 +98,4 @@ export const addQuoteToDirectPool = directQuotePool.add;
 export const removeQuoteFromDirectPool = directQuotePool.remove;
 export const loadCompletedDirectQuotePool = directQuotePool.loadCompleted;
 export const addToCompletedDirectPool = directQuotePool.addToCompleted;
+export const removeQuoteFromCompletedDirectPool = directQuotePool.removeFromCompleted;
