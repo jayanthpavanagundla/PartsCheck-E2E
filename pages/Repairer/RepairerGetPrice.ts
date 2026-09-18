@@ -495,12 +495,33 @@ export class NewQuoteTab extends BasePage {
     await step(`Select category ${index} and add a random part`, async () => {
       await this.waitForCategoriesLoaded();
       const category = this.categoryList.nth(index);
+      const categoryName = (await category.textContent())?.trim() || `#${index}`;
       await category.scrollIntoViewIfNeeded();
       await category.click();
 
       const selectorActions = this.buildFrame.locator(
         ".build-content .lineItem.itemTypeRow1 .selector-action:visible",
       );
+
+      try {
+        await expect(selectorActions.first()).toBeVisible({ timeout: 5000 });
+      } catch {
+        // Some categories don't render their parts on the first click;
+        // reselecting the same category reliably loads them.
+        await category.click();
+        try {
+          await expect(selectorActions.first()).toBeVisible();
+        } catch {
+          const html = await this.buildFrame
+            .locator(".build-content")
+            .innerHTML()
+            .catch(() => "<could not read .build-content>");
+          throw new Error(
+            `No parts loaded for category "${categoryName}" (index ${index}) even after reselecting it.\nCurrent .build-content markup:\n${html}`,
+          );
+        }
+      }
+
       const partCount = await selectorActions.count();
       const randomIndex = Math.floor(Math.random() * partCount);
       const selectorAction = selectorActions.nth(randomIndex);
@@ -540,7 +561,24 @@ export class NewQuoteTab extends BasePage {
 
   // SECTION 04 : Part Type
 
+  private async waitForPartTypeTabLoaded() {
+    await step("Wait for Part Type tab to load", async () => {
+      try {
+        await this.page.locator('#partsIframe[src]').waitFor({ state: "attached" });
+      } catch {
+        const html = await this.page
+          .locator("#mainContent .tabbar")
+          .innerHTML()
+          .catch(() => "<could not read #mainContent .tabbar>");
+        throw new Error(
+          `Part Type tab never loaded (#partsIframe has no src) - the wizard is still on a previous tab.\nCurrent tab bar markup:\n${html}`,
+        );
+      }
+    });
+  }
+
   async clickSelectAll() {
+    await this.waitForPartTypeTabLoaded();
     await step("Click on 'Select All' link", async () => {
       await this.selectAllPartTypes.click();
     });

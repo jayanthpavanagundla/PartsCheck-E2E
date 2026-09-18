@@ -6,7 +6,7 @@
   "scripts": {
     "test": "cross-env ENV=dev playwright test",
     "test:dev": "cross-env ENV=dev playwright test",
-    "test:staging": "cross-env ENV=staging playwright test",
+    "test:stg": "cross-env ENV=stg playwright test",
     "test:prod": "cross-env ENV=prod playwright test",
     "report": "playwright show-report"
   },
@@ -21,6 +21,5 @@
     "allure-playwright": "^3.10.2",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2"
-  },
-  "dependencies": {}
+  }
 }

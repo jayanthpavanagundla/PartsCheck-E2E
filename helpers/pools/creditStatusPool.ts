@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const creditStatusPoolPath = path.join(__dirname, "creditStatusPool.json");
+const creditStatusPoolPath = path.join(__dirname, "../state", "creditStatusPool.json");
 
 export interface CreditStatusSelection {
   recordId: string;

@@ -58,6 +58,12 @@ export class DataGenerators {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  /** Picks `count` random, distinct elements from an array */
+  static randomSampleFromArray<T>(arr: T[], count: number): T[] {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  }
+
   /**
    * Returns all real option values from a <select>, excluding the
    * "Please select" placeholder (value="-1") by default.

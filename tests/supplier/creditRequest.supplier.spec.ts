@@ -2,10 +2,8 @@ import { test, expect } from "@playwright/test";
 import { SupplierNavBar } from "../../pages/Supplier/SupplierNavBar.js";
 import { SuppliersCreditManagement } from "../../pages/Supplier/SupplierCreditManagement.js";
 import { epic, step } from "allure-js-commons";
-import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/quotePool.js";
-import { loadQuoteImages, removeQuoteImages } from "../../helpers/imagePool.js";
-import { getRandomAttachmentFiles,saveQuoteAttachments } from "../../helpers/attachmentPool.js";
-import { saveCreditStatusSelections } from "../../helpers/creditStatusPool.js";
+import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/pools/quotePool.js";
+import { saveCreditStatusSelections } from "../../helpers/pools/creditStatusPool.js";
 
 test.describe("Supplier: Credit Request Flow", () => {
   let supplierNavBar: SupplierNavBar;

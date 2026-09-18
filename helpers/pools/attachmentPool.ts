@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const attachmentPoolPath = path.join(__dirname, "attachmentPool.json");
+const attachmentPoolPath = path.join(__dirname, "../state", "attachmentPool.json");
 
 type AttachmentPool = Record<string, string[]>;
 
@@ -44,19 +44,19 @@ export function removeQuoteAttachments(quoteNumber: string): void {
   writeAttachmentPool(pool);
 }
 
-// Pick `count` random PDF files out of helpers/ (the attachment source
-// files live alongside quotePool.json/Img01-03.jpg), returning absolute paths.
+// Pick `count` random PDF files out of helpers/attachments, returning absolute paths.
 export function getRandomAttachmentFiles(count: number): string[] {
+  const attachmentsDir = path.join(__dirname, "../attachments");
   const files = fs
-    .readdirSync(__dirname)
+    .readdirSync(attachmentsDir)
     .filter((f) => f.toLowerCase().endsWith(".pdf"));
 
   if (files.length < count) {
     throw new Error(
-      `Not enough .pdf files in ${__dirname} to pick ${count} (found ${files.length})`,
+      `Not enough .pdf files in ${attachmentsDir} to pick ${count} (found ${files.length})`,
     );
   }
 
   const shuffled = [...files].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).map((f) => path.join(__dirname, f));
+  return shuffled.slice(0, count).map((f) => path.join(attachmentsDir, f));
 }

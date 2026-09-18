@@ -2,7 +2,7 @@ import { test } from "@playwright/test";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerCheckPrice } from "../../pages/Repairer/RepairerCheckPrice.js";
 import { epic, step } from "allure-js-commons";
-import { loadCompletedNormalQuotePool } from "../../helpers/quotePool.js";
+import { loadCompletedNormalQuotePool } from "../../helpers/pools/quotePool.js";
 
 test.describe("Repairer: Check Price for Submit Quote", () => {
   let repairerCheckPricePage: RepairerCheckPrice;

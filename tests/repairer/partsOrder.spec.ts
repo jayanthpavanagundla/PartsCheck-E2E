@@ -2,8 +2,8 @@ import { test } from "@playwright/test";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerOrders } from "../../pages/Repairer/RepairerOrders.js";
 import { epic } from "allure-js-commons";
-import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/quotePool.js";
-import { loadQuoteAttachments } from "../../helpers/attachmentPool.js";
+import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool } from "../../helpers/pools/quotePool.js";
+import { loadQuoteAttachments } from "../../helpers/pools/attachmentPool.js";
 
 test.describe("Repairer: Quoting Parts Orders", () => {
   const [normalQuoteNumber] = loadCompletedNormalQuotePool();

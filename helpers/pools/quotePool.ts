@@ -30,8 +30,8 @@ interface QuotePool {
 // so each gets its own active/completed pool pair (quote numbers must not
 // cross over between them).
 function createQuotePool(poolFile: string, completedPoolFile: string): QuotePool {
-  const poolPath = path.join(__dirname, poolFile);
-  const completedPoolPath = path.join(__dirname, completedPoolFile);
+  const poolPath = path.join(__dirname, "../state", poolFile);
+  const completedPoolPath = path.join(__dirname, "../state", completedPoolFile);
 
   function load(): string[] {
     return readJsonArray(poolPath);

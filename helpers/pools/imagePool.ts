@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const imagePoolPath = path.join(__dirname, "imagePool.json");
+const imagePoolPath = path.join(__dirname, "../state", "imagePool.json");
 
 type ImagePool = Record<string, string[]>;
 

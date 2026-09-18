@@ -1,6 +1,6 @@
 import { Locator, Page, expect } from "@playwright/test";
 import { step } from "allure-js-commons";
-import { CreditStatusSelection } from "../../helpers/creditStatusPool.js";
+import { CreditStatusSelection } from "../../helpers/pools/creditStatusPool.js";
 
 // The Repairer's Credit Management grid shows a shorter/different label than
 // the Supplier's status description for the same underlying credit status.

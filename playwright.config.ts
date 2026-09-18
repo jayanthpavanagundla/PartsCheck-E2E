@@ -39,6 +39,7 @@ if (missing.length) {
  */
 export default defineConfig({
   testDir: './tests',
+  globalSetup: require.resolve('./helpers/global-setup.ts'),
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -59,7 +60,8 @@ export default defineConfig({
     trace: 'on',
     video: 'on',
     screenshot: 'only-on-failure',
-    headless: false,
+    // Headless by default; pass `--headed` on the CLI to see the browser.
+    headless: true,
   },
 
   projects: [

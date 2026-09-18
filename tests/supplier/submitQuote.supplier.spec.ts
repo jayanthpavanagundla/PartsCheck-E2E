@@ -2,9 +2,9 @@ import { test, expect } from "@playwright/test";
 import { SupplierNavBar } from "../../pages/Supplier/SupplierNavBar.js";
 import { SupplierQuotes } from "../../pages/Supplier/SupplierQuotes.js";
 import { epic, step } from "allure-js-commons";
-import { addToCompletedDirectPool, addToCompletedNormalPool,loadDirectQuotePool,loadNormalQuotePool } from "../../helpers/quotePool.js";
-import { loadQuoteImages, removeQuoteImages } from "../../helpers/imagePool.js";
-import { getRandomAttachmentFiles,saveQuoteAttachments } from "../../helpers/attachmentPool.js";
+import { addToCompletedDirectPool, addToCompletedNormalPool,loadDirectQuotePool,loadNormalQuotePool } from "../../helpers/pools/quotePool.js";
+import { loadQuoteImages, removeQuoteImages } from "../../helpers/pools/imagePool.js";
+import { getRandomAttachmentFiles,saveQuoteAttachments } from "../../helpers/pools/attachmentPool.js";
 
 test.describe("Supplier: Submit Quote Flow", () => {
   let supplierNavBar: SupplierNavBar;

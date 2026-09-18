@@ -3,14 +3,20 @@ import path from "path";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerGetPrice } from "../../pages/Repairer/RepairerGetPrice.js";
 import { epic, step } from "allure-js-commons";
-import {addQuoteToNormalPool,addQuoteToDirectPool} from "../../helpers/quotePool.js";
-import { saveQuoteImages } from "../../helpers/imagePool.js";
+import {addQuoteToNormalPool,addQuoteToDirectPool} from "../../helpers/pools/quotePool.js";
+import { saveQuoteImages } from "../../helpers/pools/imagePool.js";
+import { DataGenerators } from "../../helpers/DataGenerators.js";
 
-const imageFiles = [
-  path.join(__dirname, "../../helpers/Img01.jpg"),
-  path.join(__dirname, "../../helpers/Img02.jpg"),
-  path.join(__dirname, "../../helpers/Img03.jpg"),
+const IMAGE_POOL = [
+  path.join(__dirname, "../../helpers/images/Img01.jpg"),
+  path.join(__dirname, "../../helpers/images/Img02.jpg"),
+  path.join(__dirname, "../../helpers/images/Img03.jpg"),
+  path.join(__dirname, "../../helpers/images/Img04.jpg"),
+  path.join(__dirname, "../../helpers/images/Img05.jpg"),
+  path.join(__dirname, "../../helpers/images/Img06.jpg"),
 ];
+
+const IMAGES_TO_UPLOAD = 3;
 
 test.describe("Repairer: Quote Creation Flow", () => {
   let repairerGetPricePage: RepairerGetPrice;
@@ -37,6 +43,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
     // SECTION 02: Images
+    const imageFiles = DataGenerators.randomSampleFromArray(IMAGE_POOL, IMAGES_TO_UPLOAD);
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
     const uploadedImages = await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();
@@ -58,7 +65,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
     // SECTION 05: Suppliers
     await repairerGetPricePage.newQuote.unselectAllSuppliers();
     await repairerGetPricePage.newQuote.selectPreferredSupplier("s1");
-    await repairerGetPricePage.newQuote.selectPreferredSupplier("s2");
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s3");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
@@ -86,6 +93,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
     await repairerGetPricePage.newQuote.verifyQuoteInfoTabComplete();
 
     // SECTION 02: Images
+    const imageFiles = DataGenerators.randomSampleFromArray(IMAGE_POOL, IMAGES_TO_UPLOAD);
     await repairerGetPricePage.newQuote.uploadImages(imageFiles);
     await repairerGetPricePage.newQuote.verifyImagesUploaded(imageFiles.length);
     const uploadedImages = await repairerGetPricePage.newQuote.getUploadedImageIdentifiers();

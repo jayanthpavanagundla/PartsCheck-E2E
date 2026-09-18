@@ -2,8 +2,8 @@ import { test } from "@playwright/test";
 import { RepairerNavBar } from "../../pages/Repairer/RepairerNavBar.js";
 import { RepairerCredits } from "../../pages/Repairer/RepairerCredits.js";
 import { epic, step } from "allure-js-commons";
-import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool, removeQuoteFromCompletedNormalPool, removeQuoteFromCompletedDirectPool } from "../../helpers/quotePool.js";
-import { loadCreditStatusSelections, removeCreditStatusSelections } from "../../helpers/creditStatusPool.js";
+import { loadCompletedNormalQuotePool, loadCompletedDirectQuotePool, removeQuoteFromCompletedNormalPool, removeQuoteFromCompletedDirectPool } from "../../helpers/pools/quotePool.js";
+import { loadCreditStatusSelections, removeCreditStatusSelections } from "../../helpers/pools/creditStatusPool.js";
 
 test.describe("Repairer: Credit Management Flow", () => {
   let repairerNavBarPage: RepairerNavBar;

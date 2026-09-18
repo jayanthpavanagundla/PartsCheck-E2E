@@ -1,7 +1,7 @@
 import { Locator, Page, FrameLocator, expect } from "@playwright/test";
 import { step } from "allure-js-commons";
 import { DataGenerators } from "../../helpers/DataGenerators.js";
-import { CreditStatusSelection } from "../../helpers/creditStatusPool.js";
+import { CreditStatusSelection } from "../../helpers/pools/creditStatusPool.js";
 
 // Credit status radio "data-id" values on the Credit Details popup.
 // "Viewed" (4) is the default state and must never be picked at random.
