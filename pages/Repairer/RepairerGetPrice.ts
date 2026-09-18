@@ -529,13 +529,31 @@ export class NewQuoteTab extends BasePage {
         .locator('input[name="itemID"]')
         .getAttribute("value");
 
-      await selectorAction.locator(".add-action").click();
+      const addedPart = this.buildFrame.locator(
+        `.build-right-content .selection-content[data-itemid="${itemId}"] .childEditText`,
+      );
 
-      await expect(
-        this.buildFrame.locator(
-          `.build-right-content .selection-content[data-itemid="${itemId}"] .childEditText`,
-        ),
-      ).toBeVisible();
+      const maxAttempts = 3;
+      let lastError: unknown;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          await selectorAction.locator(".add-action").click();
+          await expect(addedPart).toBeVisible({ timeout: 10000 });
+          lastError = undefined;
+          break;
+        } catch (error) {
+          lastError = error;
+          if (attempt < maxAttempts) {
+            await this.page.waitForTimeout(500);
+          }
+        }
+      }
+
+      if (lastError) {
+        throw new Error(
+          `Part with itemId "${itemId}" for category "${categoryName}" (index ${index}) did not appear in build-right-content after ${maxAttempts} attempts.\nLast error: ${lastError}`,
+        );
+      }
     });
   }
 

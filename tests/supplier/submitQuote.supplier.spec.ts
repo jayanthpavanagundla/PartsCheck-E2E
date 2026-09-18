@@ -20,7 +20,7 @@ test.describe("Supplier: Submit Quote Flow", () => {
   });
 
   test("Normal Quote Submission", async () => {
-    test.setTimeout(300_000);
+    test.setTimeout(120_000);
 
     await supplierQuotes.quotesInProgressTab.clickQuotesInProgress();
     await supplierNavBar.verifyPopupHeading("Incoming Quotes");
@@ -67,7 +67,7 @@ test.describe("Supplier: Submit Quote Flow", () => {
   });
 
   test("Direct Purchase Order Quote Submission", async () => {
-    test.setTimeout(300_000);
+    test.setTimeout(120_000);
 
     await supplierQuotes.quotesInProgressTab.clickQuotesInProgress();
     await supplierNavBar.verifyPopupHeading("Incoming Quotes");
