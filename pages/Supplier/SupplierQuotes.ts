@@ -149,18 +149,19 @@ export class NewQuotesRequestTab {
           const savedRow = this.page.locator(
             `tr.lineRow[data-draft_item_id="${item.draftItemId}"]`,
           );
+          // Part Number is the 4th column (row#, blank, Description, Part Number, ...).
+          // A "td.wrapCell" class was assumed from Dev markup but is not present in
+          // the rendered table in any environment, so column position is used instead.
+          const savedPartNumberCell = savedRow.locator("td").nth(3);
 
-          const savedPartNumber =
-            (await savedRow.locator("td.wrapCell").nth(1).textContent()) ?? "";
+          const savedPartNumber = (await savedPartNumberCell.textContent()) ?? "";
           const savedBuyPrice = await savedRow.getAttribute("data-buyprice");
           const savedListPrice = await savedRow.getAttribute("data-listprice");
 
           await step(
             `Line ${item.draftItemId} - Filled [Part# ${item.partNumber}, Buy $${item.buyPrice}, List $${item.listPrice}] vs Saved [Part# ${savedPartNumber.trim()}, Buy $${savedBuyPrice}, List $${savedListPrice}]`,
             async () => {
-              await expect(savedRow.locator("td.wrapCell").nth(1)).toHaveText(
-                item.partNumber,
-              );
+              await expect(savedPartNumberCell).toHaveText(item.partNumber);
 
               expect(parseFloat(savedBuyPrice ?? "0")).toBeCloseTo(
                 parseFloat(item.buyPrice),
