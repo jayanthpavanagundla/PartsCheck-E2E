@@ -14,6 +14,8 @@ export class ActiveQuotesTab {
   saveSelectionButton: Locator;
   saveSelectionsWarningDialog: Locator;
   saveSelectionsWarningSaveButton: Locator;
+  confirmationDialog: Locator;
+  confirmationDialogAcceptButton: Locator;
   confirmPartsDialog: Locator;
   confirmPartsConfirmButton: Locator;
   partsSelectedForPurchaseHeader: Locator;
@@ -26,44 +28,28 @@ export class ActiveQuotesTab {
   purchaseOrdersSubmittedMessage: Locator;
   // Constructor
   constructor(protected readonly page: Page) {
-    this.activeQuotes = this.page.locator("span.topTabText", {
-      hasText: "Active Quotes",
-    });
+    this.activeQuotes = this.page.locator("span.topTabText", {hasText: "Active Quotes"});
     this.supplierButtons = this.page.locator(".supplierButton");
     this.supplierTotalValues = this.page.locator(".supplierTotalValue");
     this.repairerCostPrice = this.page.locator("#repairerCostPrice");
-    this.repairerCostVsListPrice = this.page.locator(
-      "#repairerCostVsListPrice",
-    );
+    this.repairerCostVsListPrice = this.page.locator("#repairerCostVsListPrice",);
     this.selectedItemCount = this.page.locator(".gridSelectedItemCount");
     this.totalItemCount = this.page.locator(".gridTotalItems");
     this.saveSelectionButton = this.page.locator("#saveSelection");
-    this.saveSelectionsWarningDialog = this.page.locator(
-      "div.ui-dialog[aria-describedby='showNonSelectPartBox']",
-    );
-    this.saveSelectionsWarningSaveButton =
-      this.saveSelectionsWarningDialog.locator("button.ok-button");
-    this.confirmPartsDialog = this.page.locator(
-      "div.ui-dialog[aria-describedby='confirmParts']",
-    );
-    this.confirmPartsConfirmButton = this.confirmPartsDialog.locator(
-      "button.ok-button",
-    );
-    this.partsSelectedForPurchaseHeader = this.page.locator(
-      "p.collpaseTitle",
-      { hasText: "Parts Selected for Purchase" },
-    );
+    this.saveSelectionsWarningDialog = this.page.locator("div.ui-dialog[aria-describedby='showNonSelectPartBox']");
+    this.saveSelectionsWarningSaveButton = this.saveSelectionsWarningDialog.locator("button.ok-button");
+    this.confirmationDialog = this.page.locator("form:has(.alertable-buttons)");
+    this.confirmationDialogAcceptButton = this.confirmationDialog.getByRole("button",{ name: "Accept" });
+    this.confirmPartsDialog = this.page.locator("div.ui-dialog[aria-describedby='confirmParts']" );
+    this.confirmPartsConfirmButton = this.confirmPartsDialog.locator("button.ok-button");
+    this.partsSelectedForPurchaseHeader = this.page.locator("p.collpaseTitle",{ hasText: "Parts Selected for Purchase" });
     this.prefDateInput = this.page.locator("#prefDate");
     this.supplyNoteSelect = this.page.locator("#poNoteSelect");
     this.fromNameSelect = this.page.locator("#selectName");
     this.purchaseButton = this.page.locator("#purchaseBtn");
     this.purchaseAlertModal = this.page.locator("form.alertable");
-    this.purchaseAlertOkButton = this.purchaseAlertModal.locator(
-      "button.alertable-ok",
-    );
-    this.purchaseOrdersSubmittedMessage = this.page.getByText(
-      /Purchase orders have now been raised and submitted to chosen suppliers/i,
-    );
+    this.purchaseAlertOkButton = this.purchaseAlertModal.locator("button.alertable-ok");
+    this.purchaseOrdersSubmittedMessage = this.page.getByText(/Purchase orders have now been raised and submitted to chosen suppliers/i);
   }
   // Methods
   async clickActiveQuotes() {
@@ -94,7 +80,7 @@ export class ActiveQuotesTab {
         await expect(
           this.page
             .locator(
-              "div.tw\\:font-bold.tw\\:leading-none span.tw\\:text-success",
+              "div.tw\\:font-extrabold.tw\\:leading-none span.tw\\:text-success",
             )
             .first(),
         ).toHaveText(quoteNumber);
