@@ -40,7 +40,7 @@ export class OrdersTab {
     this.cancelReasonSelect = this.cancelItemFrame.locator("#cancelItem");
     this.cancelItemOkButton = this.cancelItemFrame.locator(".iframeOKButton");
     this.showCancelledPartsCheckbox = this.page.locator("#removedPartsDiv");
-    this.cancelledRows = this.page.locator(".canceldRow");
+    this.cancelledRows = this.page.locator(".canceldRow:visible");
     this.receiptDateInput = this.page.locator("#RECEIPTDATE_DATE");
     this.searchedQuoteTabText = this.page.locator(".topTab.topTabSelected .topTabText");
     this.creditRequestButton = this.page.locator("#creditButton");
