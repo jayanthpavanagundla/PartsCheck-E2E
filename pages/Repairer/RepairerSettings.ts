@@ -50,6 +50,8 @@ export class MarginSettingsTab {
   marginSettingsTab: Locator;
   addRuleButton: Locator;
   addRuleHeading: Locator;
+  editRuleHeading: Locator;
+  fullEditButtons: Locator;
   ruleNameInput: Locator;
   ruleNameError: Locator;
   pricingRows: Locator;
@@ -62,6 +64,8 @@ export class MarginSettingsTab {
     this.marginSettingsTab = page.locator('a[href="margin-settings.php"]');
     this.addRuleButton = page.locator('a[href="margin-settings.php?action=marginSettingsAddRule"]');
     this.addRuleHeading = page.getByText('Add Rule', { exact: true });
+    this.editRuleHeading = page.getByText('Edit Rule', { exact: true });
+    this.fullEditButtons = page.locator('tr.mrDisplayRow button[data-action="full-edit"]');
     this.ruleNameInput = page.locator("#mrRuleName");
     this.ruleNameError = page.locator("#mrNameError");
     this.pricingRows = page.locator("#marginRuleForm tbody tr[data-part]");
@@ -80,6 +84,21 @@ export class MarginSettingsTab {
       await this.addRuleButton.click();
       await expect(this.page).toHaveURL(/action=marginSettingsAddRule/);
       await expect(this.addRuleHeading).toBeVisible();
+    });
+  }
+  /** Picks a random rule from "Your Rules", clicks its Full Edit button and stores its name */
+  async clickFullEditOnRandomRule(): Promise<string> {
+    return await step("Click Full Edit on a random rule", async (ctx) => {
+      const count = await this.fullEditButtons.count();
+      expect(count, "Your Rules should have at least one rule").toBeGreaterThan(0);
+      const editButton = this.fullEditButtons.nth(Math.floor(Math.random() * count));
+      this.ruleName = (await editButton.getAttribute("data-rule"))!;
+      await ctx.displayName(`Click Full Edit on rule: ${this.ruleName}`);
+
+      await editButton.click();
+      await expect(this.editRuleHeading).toBeVisible();
+      await expect(this.ruleNameInput).toHaveValue(this.ruleName);
+      return this.ruleName;
     });
   }
   /** Enters a random rule name, retrying with a new name (max 3 attempts) if it already exists */
@@ -121,6 +140,10 @@ export class MarginSettingsTab {
         const partNoSelect = row.locator("td").last().locator("select");
 
         const rowData = await step(`${partType}: Accepted = ${accepted ? "Yes" : "No"}`, async () => {
+          if (!accepted) {
+            // Toggle via Yes so an existing rule already set to No gets reset to the declined defaults
+            await row.locator('input.mr-accepted[value="1"]').check();
+          }
           await row.locator(`input.mr-accepted[value="${accepted ? "1" : "0"}"]`).check();
 
           let pricingMethod: string;
@@ -167,7 +190,8 @@ export class MarginSettingsTab {
     await step("Click on Save Changes", async () => {
       await expect(this.saveButton).toBeEnabled();
       await this.saveButton.click();
-      await expect(this.page).not.toHaveURL(/action=marginSettingsAddRule/);
+      // Back on the rules list ("+ Add rule" only exists there), from both Add and Edit forms
+      await expect(this.addRuleButton).toBeVisible();
     });
   }
   /** Verifies the saved rule's row in "Your Rules" shows the pricing stored by fillPricingRules() */

@@ -26,4 +26,13 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerSettings.marginSettingsTab.verifySavedRule();
     await repairerSettings.marginSettingsTab.deleteSavedRule();
   });
+
+  test.only("Edit margin rule", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.clickFullEditOnRandomRule();
+    await repairerSettings.marginSettingsTab.fillPricingRules();
+    await repairerSettings.marginSettingsTab.clickSaveChanges();
+    await repairerSettings.marginSettingsTab.verifySavedRule();
+  });
 })
