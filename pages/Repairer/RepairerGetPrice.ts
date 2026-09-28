@@ -491,13 +491,33 @@ export class NewQuoteTab extends BasePage {
     });
   }
 
+  private async clickWithRetry(
+    locator: Locator,
+    options: { maxAttempts?: number; retryDelayMs?: number; clickTimeout?: number } = {},
+  ) {
+    const { maxAttempts = 3, retryDelayMs = 2000, clickTimeout = 5000 } = options;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await locator.click({ timeout: clickTimeout });
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < maxAttempts) {
+          await this.page.waitForTimeout(retryDelayMs);
+        }
+      }
+    }
+    throw lastError;
+  }
+
   async addFirstPartFromCategory(index: number) {
     await step(`Select category ${index} and add a random part`, async () => {
       await this.waitForCategoriesLoaded();
       const category = this.categoryList.nth(index);
       const categoryName = (await category.textContent())?.trim() || `#${index}`;
       await category.scrollIntoViewIfNeeded();
-      await category.click();
+      await this.clickWithRetry(category);
 
       const selectorActions = this.buildFrame.locator(
         ".build-content .lineItem.itemTypeRow1 .selector-action:visible",
@@ -508,7 +528,7 @@ export class NewQuoteTab extends BasePage {
       } catch {
         // Some categories don't render their parts on the first click;
         // reselecting the same category reliably loads them.
-        await category.click();
+        await this.clickWithRetry(category);
         try {
           await expect(selectorActions.first()).toBeVisible();
         } catch {
@@ -537,14 +557,14 @@ export class NewQuoteTab extends BasePage {
       let lastError: unknown;
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          await selectorAction.locator(".add-action").click();
+          await this.clickWithRetry(selectorAction.locator(".add-action"));
           await expect(addedPart).toBeVisible({ timeout: 10000 });
           lastError = undefined;
           break;
         } catch (error) {
           lastError = error;
           if (attempt < maxAttempts) {
-            await this.page.waitForTimeout(500);
+            await this.page.waitForTimeout(2000);
           }
         }
       }
