@@ -198,6 +198,33 @@ export class MarginSettingsTab {
       }
     });
   }
+  /** Deletes the rule created by this test via the Delete popup, then verifies it is gone after refresh */
+  async deleteSavedRule() {
+    await step(`Delete rule "${this.ruleName}"`, async () => {
+      const ruleRow = this.page
+        .locator("tr.mrDisplayRow")
+        .filter({ has: this.page.locator(`[data-rule="${this.ruleName}"]`) });
+      const deleteModal = this.page.locator("#marginDeleteModal");
+
+      await step("Click Delete icon on the rule row", async () => {
+        await ruleRow.locator('button[data-action="delete"]').click();
+        await expect(deleteModal).toBeVisible();
+      });
+      await step('Verify popup message "Are you sure you want to delete this rule?"', async () => {
+        await expect(deleteModal).toContainText("Are you sure you want to delete this rule?");
+      });
+      await step("Click Delete Rule in popup", async () => {
+        await deleteModal.locator("button.marginDeleteConfirm").click();
+        await expect(deleteModal).toBeHidden();
+        await expect(ruleRow).toHaveCount(0);
+      });
+      await step("Refresh and verify rule is not in Your Rules", async () => {
+        await this.page.reload();
+        await expect(this.addRuleButton).toBeVisible();
+        await expect(ruleRow).toHaveCount(0);
+      });
+    });
+  }
   private async selectedOptionText(select: Locator): Promise<string> {
     return (await select.locator("option:checked").textContent())?.trim() ?? "";
   }
