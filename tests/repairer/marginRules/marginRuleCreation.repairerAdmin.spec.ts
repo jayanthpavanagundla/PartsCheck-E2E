@@ -26,4 +26,40 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerSettings.marginSettingsTab.verifySavedRule();
     await repairerSettings.marginSettingsTab.deleteSavedRule();
   });
+
+  test("Edit margin rule", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.clickFullEditOnRandomRule();
+    await repairerSettings.marginSettingsTab.fillPricingRules();
+    await repairerSettings.marginSettingsTab.clickSaveChanges();
+    await repairerSettings.marginSettingsTab.verifySavedRule();
+  });
+
+  test("Set margin rule as default", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.setRandomRuleAsDefault();
+    await repairerSettings.marginSettingsTab.verifyDefaultRule();
+  });
+
+  test("Pin and unpin margin rules", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.ensurePinnedRule();
+    await repairerSettings.marginSettingsTab.pinAnotherRule();
+    await repairerSettings.marginSettingsTab.unpinSecondRule();
+  });
+
+  test("Copy & customise system rule", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.selectRandomSystemRule();
+    await repairerSettings.marginSettingsTab.clickCopyAndCustomise();
+    await repairerSettings.marginSettingsTab.enterRuleName();
+    await repairerSettings.marginSettingsTab.verifyCopiedPricingRules();
+    await repairerSettings.marginSettingsTab.clickSaveChanges();
+    await repairerSettings.marginSettingsTab.verifySavedRule();
+    await repairerSettings.marginSettingsTab.deleteSavedRule();
+  });
 })
