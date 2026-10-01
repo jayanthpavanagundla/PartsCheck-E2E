@@ -21,7 +21,8 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerSettings.marginSettingsTab.clickMarginSettings();
     await repairerSettings.marginSettingsTab.clickAddRule();
     await repairerSettings.marginSettingsTab.enterRuleName();
-    await repairerSettings.marginSettingsTab.fillPricingRules();
+    // oneNo == One Part Type No; allYes == All Part Types Yes
+    await repairerSettings.marginSettingsTab.fillPricingRules("allYes"); 
     await repairerSettings.marginSettingsTab.clickSaveChanges();
     await repairerSettings.marginSettingsTab.verifySavedRule();
     await repairerSettings.marginSettingsTab.deleteSavedRule();
@@ -31,7 +32,7 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerNavBar.clickSettings();
     await repairerSettings.marginSettingsTab.clickMarginSettings();
     await repairerSettings.marginSettingsTab.clickFullEditOnRandomRule();
-    await repairerSettings.marginSettingsTab.fillPricingRules();
+    await repairerSettings.marginSettingsTab.fillPricingRules("allYes");
     await repairerSettings.marginSettingsTab.clickSaveChanges();
     await repairerSettings.marginSettingsTab.verifySavedRule();
   });
@@ -61,5 +62,14 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerSettings.marginSettingsTab.clickSaveChanges();
     await repairerSettings.marginSettingsTab.verifySavedRule();
     await repairerSettings.marginSettingsTab.deleteSavedRule();
+  });
+
+  test("Inline edit margin rule", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.clickQuickEditOnRandomRule();
+    await repairerSettings.marginSettingsTab.editInlineRule();
+    await repairerSettings.marginSettingsTab.clickInlineSave();
+    await repairerSettings.marginSettingsTab.verifyInlineEditInFullEdit();
   });
 })

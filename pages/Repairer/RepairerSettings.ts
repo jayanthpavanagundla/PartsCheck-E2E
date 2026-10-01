@@ -66,6 +66,7 @@ export class MarginSettingsTab {
   systemRuleName = "";
   systemRuleCopyHref = "";
   systemRulePricing: Record<string, string> = {};
+  inlineEditRuleId = "";
   // System Rules / Your Rules columns after Rule Name + Applies To: OEM, AFTM, RECO, Parallel, Recycled
   private readonly partColumnIndex: Record<string, number> = {
     OEM: 2,
@@ -120,38 +121,47 @@ export class MarginSettingsTab {
   }
   /** Enters a random rule name, retrying with a new name (max 3 attempts) if it already exists */
   async enterRuleName(maxAttempts = 3): Promise<string> {
-    return await step("Enter unique Rule Name", async () => {
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const name = DataGenerators.randomString("Auto Rule ", 6);
-        await this.ruleNameInput.fill(name);
-        await this.ruleNameInput.blur();
-
-        // Duplicate-name validation is client side; give it a moment to show the error
-        const isDuplicate = await this.ruleNameError
-          .waitFor({ state: "visible", timeout: 1500 })
-          .then(() => true)
-          .catch(() => false);
-
-        if (!isDuplicate) {
-          this.ruleName = name;
-          return name;
-        }
-        const message = await this.ruleNameError.textContent();
-        console.log(`Attempt ${attempt}: "${name}" rejected - ${message?.trim()}`);
-      }
-      throw new Error(`Could not enter a unique rule name after ${maxAttempts} attempts`);
+    return await step("Enter unique Rule Name", async (ctx) => {
+      this.ruleName = await this.fillUniqueRuleName(this.ruleNameInput, this.ruleNameError, maxAttempts);
+      await ctx.displayName(`Enter unique Rule Name: ${this.ruleName}`);
+      return this.ruleName;
     });
   }
-  /** Sets Accepted = Yes/No randomly for every part type row, fills the row and stores its values */
-  async fillPricingRules(): Promise<PricingRuleRow[]> {
-    return await step("Fill Pricing Rules table", async () => {
+  /** Fills a random rule name, retrying with a new name if the duplicate-name error shows */
+  private async fillUniqueRuleName(input: Locator, error: Locator, maxAttempts: number): Promise<string> {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const name = DataGenerators.randomString("Auto Rule ", 6);
+      await input.fill(name);
+      await input.blur();
+
+      // Duplicate-name validation is client side; give it a moment to show the error
+      const isDuplicate = await error
+        .waitFor({ state: "visible", timeout: 1500 })
+        .then(() => true)
+        .catch(() => false);
+
+      if (!isDuplicate) {
+        return name;
+      }
+      const message = await error.textContent();
+      console.log(`Attempt ${attempt}: "${name}" rejected - ${message?.trim()}`);
+    }
+    throw new Error(`Could not enter a unique rule name after ${maxAttempts} attempts`);
+  }
+  /**
+   * Fills every part type row and stores its values.
+   * "allYes": every part type Accepted = Yes. "oneNo": one random part type Accepted = No, the rest Yes.
+   */
+  async fillPricingRules(acceptance: "allYes" | "oneNo" = "allYes"): Promise<PricingRuleRow[]> {
+    return await step(`Fill Pricing Rules table (${acceptance})`, async () => {
       this.pricingRules = [];
       const rowCount = await this.pricingRows.count();
+      const declinedIndex = acceptance === "oneNo" ? Math.floor(Math.random() * rowCount) : -1;
 
       for (let i = 0; i < rowCount; i++) {
         const row = this.pricingRows.nth(i);
         const partType = (await row.getAttribute("data-part"))!;
-        const accepted = Math.random() < 0.5;
+        const accepted = i !== declinedIndex;
         const methodSelect = row.locator("select.mr-method");
         const valueInput = row.locator("input.mr-value");
         const partNoSelect = row.locator("td").last().locator("select");
@@ -189,6 +199,7 @@ export class MarginSettingsTab {
               return await valueInput.inputValue();
             });
           }
+          await this.verifyExceptionAutoRow(partType, accepted);
           const partNumberDisplay = await step("Select Part Number Display", async (ctx) => {
             await DataGenerators.selectRandomOption(partNoSelect);
             const text = await this.selectedOptionText(partNoSelect);
@@ -201,6 +212,38 @@ export class MarginSettingsTab {
         this.pricingRules.push({ partType, accepted, ...rowData });
       }
       return this.pricingRules;
+    });
+  }
+  /** Not accepted: Exceptions shows a "Not accepted | <part> | From pricing rule" row for the part. Accepted: that row is hidden */
+  private async verifyExceptionAutoRow(partType: string, accepted: boolean) {
+    await step(`Verify Exceptions section for ${partType}`, async () => {
+      const excBody = this.page.locator("#mrExcBody");
+      if (!(await excBody.isVisible())) {
+        await step("Expand Exceptions section", async () => {
+          await this.page.locator("#mrExcToggle").click();
+          await expect(excBody).toBeVisible();
+        });
+      }
+      const autoRow = this.page.locator(`#mrExcAutoRows .mr-exc-auto-row[data-part="${partType}"]`);
+      if (accepted) {
+        await step(`Verify "Not accepted" exception row for ${partType} is not shown`, async () => {
+          await expect(autoRow).toBeHidden();
+        });
+        return;
+      }
+      const cells = autoRow.locator("span");
+      await step(`Verify "Not accepted" exception row for ${partType} is shown`, async () => {
+        await expect(autoRow).toBeVisible();
+      });
+      await step('Verify badge text: "Not accepted"', async () => {
+        await expect(cells.nth(0)).toHaveText("Not accepted");
+      });
+      await step(`Verify part type: "${partType}"`, async () => {
+        await expect(cells.nth(1)).toHaveText(partType);
+      });
+      await step('Verify source: "From pricing rule"', async () => {
+        await expect(cells.nth(2)).toHaveText("From pricing rule");
+      });
     });
   }
   async clickSaveChanges() {
@@ -473,6 +516,127 @@ export class MarginSettingsTab {
       }
       return this.pricingRules;
     });
+  }
+  /** Picks a random rule from "Your Rules", clicks its Quick edit (inline) button and stores its id */
+  async clickQuickEditOnRandomRule(): Promise<string> {
+    return await step("Click Quick edit on a random rule", async (ctx) => {
+      const quickEditButtons = this.page.locator('tr.mrDisplayRow button[data-action="quick-edit"]');
+      const count = await quickEditButtons.count();
+      expect(count, "Your Rules should have at least one rule").toBeGreaterThan(0);
+      const quickEditButton = quickEditButtons.nth(Math.floor(Math.random() * count));
+      this.ruleName = (await quickEditButton.getAttribute("data-rule"))!;
+      this.inlineEditRuleId = (await quickEditButton.getAttribute("data-rule-id"))!;
+      await ctx.displayName(`Click Quick edit on rule: ${this.ruleName}`);
+
+      await quickEditButton.click();
+      await step(`Verify inline edit row is shown with Rule Name: ${this.ruleName}`, async () => {
+        await expect(this.inlineEditRow).toBeVisible();
+        await expect(this.inlineEditRow.locator("input.mrInlineName")).toHaveValue(this.ruleName);
+      });
+      return this.ruleName;
+    });
+  }
+  /** Inline edit: enters a new unique Rule Name and a random Pricing Method + Value per part type, storing them */
+  async editInlineRule(maxAttempts = 3): Promise<PricingRuleRow[]> {
+    return await step(`Edit rule "${this.ruleName}" inline`, async () => {
+      const editRow = this.inlineEditRow;
+      const previousName = this.ruleName;
+
+      await step("Enter new Rule Name", async (ctx) => {
+        this.ruleName = await this.fillUniqueRuleName(
+          editRow.locator("input.mrInlineName"),
+          editRow.locator("p.mrInlineError"),
+          maxAttempts
+        );
+        await ctx.displayName(`Enter new Rule Name: ${previousName} -> ${this.ruleName}`);
+      });
+
+      this.pricingRules = [];
+      for (const [partType, index] of Object.entries(this.partColumnIndex)) {
+        const cell = editRow.locator("td").nth(index);
+        const methodSelect = cell.locator("select.mrInlineMethod");
+        const valueInput = cell.locator("input.mrInlineValue");
+        // Not accepted part types render a disabled "Markup on Cost" select without the mrInlineMethod class
+        const accepted = (await methodSelect.count()) > 0;
+        const value = String(DataGenerators.randomPrice(1, 100));
+
+        const pricingMethod = await step(`${partType}`, async (partCtx) => {
+          let method: string;
+          if (accepted) {
+            method = await step("Select Pricing Method", async (ctx) => {
+              await DataGenerators.selectRandomOption(methodSelect);
+              const text = await this.selectedOptionText(methodSelect);
+              await ctx.displayName(`Select Pricing Method: ${text}`);
+              return text;
+            });
+          } else {
+            method = await step("Pricing Method locked: Markup on Cost", async () => {
+              const lockedSelect = cell.locator("select[disabled]");
+              await expect(lockedSelect).toBeDisabled();
+              return await this.selectedOptionText(lockedSelect);
+            });
+          }
+          await step(`Enter Value: ${value}%`, async () => {
+            await valueInput.fill(value);
+          });
+          await partCtx.displayName(
+            `${partType}${accepted ? "" : " (Not accepted)"}: ${method} ${value}%`
+          );
+          return method;
+        });
+        this.pricingRules.push({ partType, accepted, pricingMethod, value, partNumberDisplay: "" });
+      }
+      return this.pricingRules;
+    });
+  }
+  /** Clicks Save on the inline edit row and waits for the rule to show its new name */
+  async clickInlineSave() {
+    await step("Click Save on inline edit row", async () => {
+      await step("Click Save", async () => {
+        await this.inlineEditRow.locator("button.mrInlineSave").click();
+      });
+      await step(`Verify rule "${this.ruleName}" is shown in Your Rules`, async () => {
+        await expect(this.ruleRow(this.ruleName)).toBeVisible();
+      });
+      await step("Verify inline edit row is closed", async () => {
+        await expect(this.inlineEditRow).toBeHidden();
+      });
+    });
+  }
+  /** Reloads, then opens the rule in Full Edit and verifies Rule Name, Accepted, Pricing Method and Value */
+  async verifyInlineEditInFullEdit() {
+    await this.reloadMarginSettings();
+    await this.verifySavedRule();
+    await step(`Click Full Edit on "${this.ruleName}"`, async () => {
+      await this.ruleRow(this.ruleName).locator('button[data-action="full-edit"]').click();
+      await expect(this.editRuleHeading).toBeVisible();
+    });
+    await step("Verify Full Edit shows the inline edits", async () => {
+      await step(`Verify Rule Name: ${this.ruleName}`, async () => {
+        await expect(this.ruleNameInput).toHaveValue(this.ruleName);
+      });
+
+      for (const rule of this.pricingRules) {
+        await step(`${rule.partType}: ${rule.pricingMethod} ${rule.value}%`, async () => {
+          const row = this.page.locator(`#marginRuleForm tbody tr[data-part="${rule.partType}"]`);
+          const methodSelect = row.locator("select.mr-method");
+
+          await step(`Verify Accepted: ${rule.accepted ? "Yes" : "No"}`, async () => {
+            await expect(row.locator(`input.mr-accepted[value="${rule.accepted ? "1" : "0"}"]`)).toBeChecked();
+          });
+          await step(`Verify Pricing Method: ${rule.pricingMethod}`, async () => {
+            expect(await this.selectedOptionText(methodSelect)).toBe(rule.pricingMethod);
+          });
+          await step(`Verify Value: ${rule.value}%`, async () => {
+            // Full Edit shows "20.00"; inline edit entered "20"
+            expect(Number(await row.locator("input.mr-value").inputValue())).toBe(Number(rule.value));
+          });
+        });
+      }
+    });
+  }
+  private get inlineEditRow(): Locator {
+    return this.page.locator(`tr.mrEditRow[data-rule-id="${this.inlineEditRuleId}"]`);
   }
   private favouriteButton(ruleName: string): Locator {
     return this.ruleRow(ruleName).locator('button[data-action="favourite"]');
