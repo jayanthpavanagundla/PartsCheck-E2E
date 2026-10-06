@@ -18,6 +18,7 @@ export class NewQuotesRequestTab {
   // Submit Quote Tab Locators
   referenceValue: Locator;
   supplierRefNrInput: Locator;
+  estDeliverySelect: Locator;
   // Line Table Locators
   lineItemRows: Locator;
   savePricesButton: Locator;
@@ -49,6 +50,7 @@ export class NewQuotesRequestTab {
         "xpath=following-sibling::div[contains(@class,'quoteTitleContent')]",
       );
     this.supplierRefNrInput = this.page.locator('input[name="supplierRefNr"]');
+    this.estDeliverySelect = this.page.locator('select[name="deliveryID"]');
     // Line Table Locators
     this.lineItemRows = this.page.locator("tr.lineRow");
     this.savePricesButton = this.page.locator(".baseButton.savePricesButton");
@@ -107,6 +109,28 @@ export class NewQuotesRequestTab {
     });
   }
 
+  /** Selects a random Est. Delivery option (never "Not Selected") and returns its text */
+  async selectRandomEstDelivery(): Promise<string> {
+    return await step("Select random Est. Delivery", async (ctx) => {
+      const selectedOption = this.estDeliverySelect.locator("option:checked");
+
+      const value = await step("Select a random option (excluding 'Not Selected')", async (selectCtx) => {
+        const selectedValue = await DataGenerators.selectRandomOption(this.estDeliverySelect);
+        const selectedText = ((await selectedOption.textContent()) ?? "").trim();
+        await selectCtx.displayName(`Select option: '${selectedText}'`);
+        return selectedValue;
+      });
+      const text = ((await selectedOption.textContent()) ?? "").trim();
+
+      await step(`Verify Est. Delivery shows '${text}'`, async () => {
+        await expect(this.estDeliverySelect).toHaveValue(value);
+        await expect(this.estDeliverySelect).not.toHaveValue("-1");
+      });
+      await ctx.displayName(`Select Est. Delivery: '${text}'`);
+      return text;
+    });
+  }
+
   async fillAllLineItems(): Promise<FilledLineItem[]> {
     const filledItems: FilledLineItem[] = [];
 
@@ -122,7 +146,8 @@ export class NewQuotesRequestTab {
 
           const partNumber = DataGenerators.randomNumber(12);
           const buyPrice = DataGenerators.randomPrice(50, 150).toString();
-          const listPrice = (parseFloat(buyPrice) * 1.5).toString();
+          // List Price must be twice the Buy Price
+          const listPrice = (Math.round(parseFloat(buyPrice) * 200) / 100).toString();
 
           await row.locator("input.partNr").fill(partNumber);
           await row.locator("input.buyprice").fill(buyPrice);

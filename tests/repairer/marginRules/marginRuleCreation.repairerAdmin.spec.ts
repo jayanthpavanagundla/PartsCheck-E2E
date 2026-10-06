@@ -72,4 +72,18 @@ test.describe("Repairer: Margin Rules Settings", () => {
     await repairerSettings.marginSettingsTab.clickInlineSave();
     await repairerSettings.marginSettingsTab.verifyInlineEditInFullEdit();
   });
+
+  test("Default margin rule fallback", async () => {
+    await repairerNavBar.clickSettings();
+    await repairerSettings.marginSettingsTab.clickMarginSettings();
+    await repairerSettings.marginSettingsTab.clickAddRule();
+    await repairerSettings.marginSettingsTab.enterRuleName();
+    await repairerSettings.marginSettingsTab.fillPricingRules("allYes");
+    await repairerSettings.marginSettingsTab.clickSaveChanges();
+    await repairerSettings.marginSettingsTab.verifySavedRule();
+    await repairerSettings.marginSettingsTab.setSavedRuleAsDefault();
+    await repairerSettings.marginSettingsTab.verifyDefaultRule();
+    await repairerSettings.marginSettingsTab.deleteSavedRule();
+    await repairerSettings.marginSettingsTab.verifyDefaultFallsBackToSystemRule("Standard");
+  });
 })

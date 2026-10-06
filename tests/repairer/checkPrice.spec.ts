@@ -32,7 +32,7 @@ test.describe("Repairer: Check Price for Submit Quote", () => {
     await repairerCheckPricePage.activeQuotes.verifyQuoteNumberVisible(quoteNumber);
 
     // Change to select a different preferred supplier (e.g. "s2")
-    const preferredSupplier = "s1";
+    const preferredSupplier = "Test Supplier 1";
     await repairerCheckPricePage.activeQuotes.getSupplierTotalAmount(preferredSupplier);
     await repairerCheckPricePage.activeQuotes.selectSupplier(preferredSupplier);
     await repairerCheckPricePage.activeQuotes.verifyYourCostMatchesSupplierTotal(preferredSupplier);

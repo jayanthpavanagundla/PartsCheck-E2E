@@ -62,6 +62,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
     await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
   })
 
@@ -78,6 +79,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(directQuoteNumber);
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
     await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
   })
 
@@ -93,6 +95,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(normalQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
   })
 
@@ -108,11 +111,12 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(directQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
   })
 
   test("Items Credit Request - Normal Quote", async ({page}) => {
-    const supplier = "s1";
+    const supplier = "Test Supplier 1";
 
     await repairerNavBarPage.searchForResult(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(normalQuoteNumber);
@@ -128,7 +132,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
   })
 
   test("Items Credit Request - Direct Purchase Quote", async ({page}) => {
-    const supplier = "s1";
+    const supplier = "Test Supplier 1";
 
     await repairerNavBarPage.searchForResult(directQuoteNumber);
     await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(directQuoteNumber);

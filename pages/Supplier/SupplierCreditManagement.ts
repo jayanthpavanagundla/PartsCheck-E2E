@@ -20,7 +20,6 @@ const REJECTED_STATUS_ID = "3";
 export class AllCreditsRequestTab {
   // Locators
   allCreditRequestsTab: Locator;
-  allCreditsTable: Locator;
   // Credit Details Popup Locators
   popupFrame: FrameLocator;
   popupOrderNoLink: Locator;
@@ -33,7 +32,6 @@ export class AllCreditsRequestTab {
   // Constructor
   constructor(protected readonly page: Page) {
     this.allCreditRequestsTab = page.locator(".toplist.anchorlink", {hasText: "All Credit Requests"});
-    this.allCreditsTable = this.page.locator("td.moreInfoRow[data-id='1'] i.fa-chevron-down");
 
     // Credit Details Popup Locators
     this.popupFrame = page.frameLocator("iframe.cboxIframe");
@@ -54,9 +52,28 @@ export class AllCreditsRequestTab {
     });
   }
 
-  async clickAllCreditsTable() {
-    await step('Expand All Credits Table', async () => {
-      await this.allCreditsTable.click();
+  // "View More" chevron for a given purchaser - its data-id is the purchaser's internal ID, so locate by name
+  viewMoreIcon(purchaserName: string): Locator {
+    return this.page
+      .locator("tr.purchaserRow", {
+        has: this.page.locator("span.purchaserName", { hasText: new RegExp(`^\\s*${purchaserName}\\s*$`) }),
+      })
+      .locator("td.moreInfoRow i");
+  }
+
+  async clickPurchaserViewMore(purchaserName: string): Promise<void> {
+    await step(`Click 'View More' for purchaser '${purchaserName}'`, async () => {
+      const icon = this.viewMoreIcon(purchaserName);
+      // Chevron toggles down/up; clicking an already expanded (up) row would collapse it
+      if (await icon.evaluate((el) => el.classList.contains("fa-chevron-down"))) {
+        await icon.click();
+      }
+    });
+  }
+
+  async verifyPurchaserExpanded(purchaserName: string): Promise<void> {
+    await step(`Verify purchaser '${purchaserName}' credit requests are expanded`, async () => {
+      await expect(this.viewMoreIcon(purchaserName)).toHaveClass(/fa-chevron-up/);
     });
   }
 

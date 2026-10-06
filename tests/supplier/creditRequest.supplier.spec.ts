@@ -20,7 +20,10 @@ test.describe("Supplier: Credit Request Flow", () => {
 
     test("Credit Request Submission - Normal Quote", async () => {
         await supplierCreditManagement.allCreditsRequestTab.clickAllCreditRequests();
-        await supplierCreditManagement.allCreditsRequestTab.clickAllCreditsTable();
+
+        const purchaserName = "Test Repairer 5";
+        await supplierCreditManagement.allCreditsRequestTab.clickPurchaserViewMore(purchaserName);
+        await supplierCreditManagement.allCreditsRequestTab.verifyPurchaserExpanded(purchaserName);
 
         // Order No on the credit request row must match a quote the Repairer has already completed
         const [orderNumber] = await step("Load quote number from completed Normal Quote pool", async () => loadCompletedNormalQuotePool());
@@ -40,7 +43,10 @@ test.describe("Supplier: Credit Request Flow", () => {
 
     test("Credit Request Submission - Direct Purchase Quote", async () => {
         await supplierCreditManagement.allCreditsRequestTab.clickAllCreditRequests();
-        await supplierCreditManagement.allCreditsRequestTab.clickAllCreditsTable();
+
+        const purchaserName = "Test Repairer 5";
+        await supplierCreditManagement.allCreditsRequestTab.clickPurchaserViewMore(purchaserName);
+        await supplierCreditManagement.allCreditsRequestTab.verifyPurchaserExpanded(purchaserName);
 
         // Order No on the credit request row must match a quote the Repairer has already completed
         const [orderNumber] = await step("Load quote number from completed Direct Purchase Quote pool", async () => loadCompletedDirectQuotePool());

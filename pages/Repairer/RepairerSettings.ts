@@ -199,7 +199,9 @@ export class MarginSettingsTab {
               return await valueInput.inputValue();
             });
           }
-          await this.verifyExceptionAutoRow(partType, accepted);
+          if (!accepted) {
+            await this.verifyExceptionAutoRow(partType);
+          }
           const partNumberDisplay = await step("Select Part Number Display", async (ctx) => {
             await DataGenerators.selectRandomOption(partNoSelect);
             const text = await this.selectedOptionText(partNoSelect);
@@ -214,8 +216,8 @@ export class MarginSettingsTab {
       return this.pricingRules;
     });
   }
-  /** Not accepted: Exceptions shows a "Not accepted | <part> | From pricing rule" row for the part. Accepted: that row is hidden */
-  private async verifyExceptionAutoRow(partType: string, accepted: boolean) {
+  /** Not accepted: Exceptions shows a "Not accepted | <part> | From pricing rule" row for the part */
+  private async verifyExceptionAutoRow(partType: string) {
     await step(`Verify Exceptions section for ${partType}`, async () => {
       const excBody = this.page.locator("#mrExcBody");
       if (!(await excBody.isVisible())) {
@@ -225,12 +227,6 @@ export class MarginSettingsTab {
         });
       }
       const autoRow = this.page.locator(`#mrExcAutoRows .mr-exc-auto-row[data-part="${partType}"]`);
-      if (accepted) {
-        await step(`Verify "Not accepted" exception row for ${partType} is not shown`, async () => {
-          await expect(autoRow).toBeHidden();
-        });
-        return;
-      }
       const cells = autoRow.locator("span");
       await step(`Verify "Not accepted" exception row for ${partType} is shown`, async () => {
         await expect(autoRow).toBeVisible();
@@ -332,6 +328,43 @@ export class MarginSettingsTab {
       await expect(this.ruleRow(this.defaultRuleName).locator('button[data-action="set-default"]'))
         .toHaveAttribute("data-default", "1");
       return this.defaultRuleName;
+    });
+  }
+  /** Clicks Set as default on the rule created by this test (this.ruleName) and stores it as the default rule */
+  async setSavedRuleAsDefault(): Promise<string> {
+    await this.capturePreviousDefaultRule();
+    return await step(`Set rule "${this.ruleName}" as default (previous: ${this.previousDefaultRuleName})`, async () => {
+      const setDefaultButton = this.ruleRow(this.ruleName).locator('button[data-action="set-default"]');
+      await step(`Click Set as default on "${this.ruleName}"`, async () => {
+        await setDefaultButton.click();
+      });
+      await step("Verify Set as default button is marked current default", async () => {
+        await expect(setDefaultButton).toHaveAttribute("data-default", "1");
+      });
+      this.defaultRuleName = this.ruleName;
+      return this.defaultRuleName;
+    });
+  }
+  /** After the default rule is deleted, verifies the default falls back to the given System Rule */
+  async verifyDefaultFallsBackToSystemRule(systemRuleName = "Standard") {
+    await step(`Verify default falls back to System Rule "${systemRuleName}"`, async () => {
+      const setDefaultButton = this.page.locator(
+        `button[data-action="set-default"][data-rule="${systemRuleName}"]`
+      );
+      const systemRuleRow = setDefaultButton.locator("xpath=ancestor::tr[1]");
+      await step(`Verify "${systemRuleName}" is listed in System Rules`, async () => {
+        await expect(systemRuleRow.locator("td").first().getByText("SYSTEM", { exact: true })).toBeVisible();
+      });
+      await step(`Verify DEFAULT pill is shown on "${systemRuleName}"`, async () => {
+        await expect(systemRuleRow.locator("td").first().getByText("DEFAULT", { exact: true })).toBeVisible();
+      });
+      await step(`Verify Set as default button on "${systemRuleName}" is marked current default`, async () => {
+        await expect(setDefaultButton).toHaveAttribute("data-default", "1");
+        await expect(setDefaultButton).toBeDisabled();
+      });
+      await step("Verify no other rule (System or Your Rules) is default", async () => {
+        await expect(this.page.locator('button[data-action="set-default"][data-default="1"]')).toHaveCount(1);
+      });
     });
   }
   /** Reloads after a short wait and verifies the rule set by setRandomRuleAsDefault() is the only one with the DEFAULT pill */
