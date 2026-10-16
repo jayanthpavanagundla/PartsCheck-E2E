@@ -116,7 +116,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
   })
 
   test("Items Credit Request - Normal Quote", async ({page}) => {
-    const supplier = "Test Supplier 1";
+    const supplier = "s1";
 
     await repairerNavBarPage.searchForResult(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(normalQuoteNumber);
@@ -132,7 +132,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
   })
 
   test("Items Credit Request - Direct Purchase Quote", async ({page}) => {
-    const supplier = "Test Supplier 1";
+    const supplier = "s1";
 
     await repairerNavBarPage.searchForResult(directQuoteNumber);
     await repairerOrdersPage.ordersTab.verifySearchedQuoteNumber(directQuoteNumber);

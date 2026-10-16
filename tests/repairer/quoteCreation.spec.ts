@@ -64,8 +64,8 @@ test.describe("Repairer: Quote Creation Flow", () => {
 
     // SECTION 05: Suppliers
     await repairerGetPricePage.newQuote.unselectAllSuppliers();
-    await repairerGetPricePage.newQuote.selectPreferredSupplier("Test Supplier 1");
-    await repairerGetPricePage.newQuote.selectPreferredSupplier("Test Supplier 2");
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s1");
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s2");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
@@ -114,7 +114,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
 
     // SECTION 05: Suppliers
     await repairerGetPricePage.newQuote.unselectAllSuppliers();
-    await repairerGetPricePage.newQuote.selectPreferredSupplier("Test Supplier 1");
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s1");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 

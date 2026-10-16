@@ -8,6 +8,8 @@ import { saveCreditStatusSelections } from "../../helpers/pools/creditStatusPool
 test.describe("Supplier: Credit Request Flow", () => {
   let supplierNavBar: SupplierNavBar;
   let supplierCreditManagement: SuppliersCreditManagement;
+  // Business name of the Repairer (login r1) as shown in the Purchaser Name column
+  const purchaserName = "King Panels";
 
     test.beforeEach(async ({ page }) => {
         epic("Supplier: Credit Request Flow");
@@ -21,7 +23,6 @@ test.describe("Supplier: Credit Request Flow", () => {
     test("Credit Request Submission - Normal Quote", async () => {
         await supplierCreditManagement.allCreditsRequestTab.clickAllCreditRequests();
 
-        const purchaserName = "Test Repairer 5";
         await supplierCreditManagement.allCreditsRequestTab.clickPurchaserViewMore(purchaserName);
         await supplierCreditManagement.allCreditsRequestTab.verifyPurchaserExpanded(purchaserName);
 
@@ -44,7 +45,6 @@ test.describe("Supplier: Credit Request Flow", () => {
     test("Credit Request Submission - Direct Purchase Quote", async () => {
         await supplierCreditManagement.allCreditsRequestTab.clickAllCreditRequests();
 
-        const purchaserName = "Test Repairer 5";
         await supplierCreditManagement.allCreditsRequestTab.clickPurchaserViewMore(purchaserName);
         await supplierCreditManagement.allCreditsRequestTab.verifyPurchaserExpanded(purchaserName);
 

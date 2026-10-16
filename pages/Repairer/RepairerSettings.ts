@@ -67,13 +67,13 @@ export class MarginSettingsTab {
     systemRuleCopyHref = "";
     systemRulePricing: Record<string, string> = {};
     inlineEditRuleId = "";
-    // System Rules / Your Rules columns after Rule Name + Applies To: OEM, AFTM, RECO, Parallel, Recycled
-    private readonly partColumnIndex: Record<string, number> = {
-        OEM: 2,
-        Aftermarket: 3,
-        Reconditioned: 4,
-        Parallel: 5,
-        Recycled: 6,
+    // System Rules / Your Rules header labels per part type; column order varies, so it is read from the header
+    private readonly partColumnHeaders: Record<string, string[]> = {
+        OEM: ["OEM"],
+        Aftermarket: ["AFTM", "Aftermarket"],
+        Reconditioned: ["RECO", "Reconditioned"],
+        Parallel: ["Parallel"],
+        Recycled: ["Recycled"],
     };
     pricingRules: PricingRuleRow[] = [];
     // Constructor
@@ -271,11 +271,11 @@ export class MarginSettingsTab {
     /** Verifies the saved rule's row in "Your Rules" shows the pricing stored by fillPricingRules() */
     async verifySavedRule() {
         await step(`Verify saved rule "${this.ruleName}" in Your Rules`, async () => {
-            const columnIndex = this.partColumnIndex;
             const ruleRow = this.page
                 .locator("tr.mrDisplayRow")
                 .filter({ has: this.page.locator(`[data-rule="${this.ruleName}"]`) });
             await expect(ruleRow).toHaveCount(1);
+            const columnIndex = await this.partColumnIndex(ruleRow);
 
             for (const rule of this.pricingRules) {
                 // "Charge of List" displays as "% of List"; Markup/Show Markup on Cost (and not accepted) as "% Markup of Cost"
@@ -535,8 +535,8 @@ export class MarginSettingsTab {
             await ctx.displayName(`Select System Rule: ${this.systemRuleName}`);
 
             this.systemRulePricing = {};
-            for (const [partType, index] of Object.entries(this.partColumnIndex)) {
-                const text = (await row.locator("td").nth(index).textContent())!.trim();
+            for (const [partType, index] of Object.entries(await this.partColumnIndex(row))) {
+                const text =(await row.locator("td").nth(index).textContent())!.trim();
                 this.systemRulePricing[partType] = text;
                 await step(`Captured ${partType}: ${text}`, async () => { });
             }
@@ -612,7 +612,7 @@ export class MarginSettingsTab {
             });
 
             this.pricingRules = [];
-            for (const [partType, index] of Object.entries(this.partColumnIndex)) {
+            for (const [partType, index] of Object.entries(await this.partColumnIndex(editRow))) {
                 const cell = editRow.locator("td").nth(index);
                 const methodSelect = cell.locator("select.mrInlineMethod");
                 const valueInput = cell.locator("input.mrInlineValue");
@@ -712,6 +712,18 @@ export class MarginSettingsTab {
         return this.page
             .locator("tr.mrDisplayRow")
             .filter({ has: this.page.locator(`[data-rule="${ruleName}"]`) });
+    }
+    /** Maps each part type to its column index, read from the header of the table containing the row */
+    private async partColumnIndex(row: Locator): Promise<Record<string, number>> {
+        const headers = (await row.locator("xpath=ancestor::table[1]").locator("thead th").allTextContents())
+            .map((text) => text.trim().toLowerCase());
+        const columnIndex: Record<string, number> = {};
+        for (const [partType, labels] of Object.entries(this.partColumnHeaders)) {
+            const index = headers.findIndex((header) => labels.some((label) => header === label.toLowerCase()));
+            expect(index, `No "${partType}" column in rules table headers: ${headers.join(" | ")}`).toBeGreaterThanOrEqual(0);
+            columnIndex[partType] = index;
+        }
+        return columnIndex;
     }
     private async selectedOptionText(select: Locator): Promise<string> {
         return (await select.locator("option:checked").textContent())?.trim() ?? "";

@@ -27,7 +27,7 @@ test.describe("Repairer: Credit Management Flow", () => {
 
     const selections = await step(`Load saved credit status selections for Order No '${orderNumber}'`, async () => loadCreditStatusSelections(orderNumber));
 
-    const supplierName = "Test Supplier 1";
+    const supplierName = "s1";
     await reparierCreditsPage.creditManagement.clickSupplierPreview(supplierName);
     await reparierCreditsPage.creditManagement.verifySupplierPreviewExpanded(supplierName);
 
@@ -51,7 +51,7 @@ test.describe("Repairer: Credit Management Flow", () => {
 
     const selections = await step(`Load saved credit status selections for Order No '${orderNumber}'`, async () => loadCreditStatusSelections(orderNumber));
 
-    const supplierName = "Test Supplier 1";
+    const supplierName = "s1";
     await reparierCreditsPage.creditManagement.clickSupplierPreview(supplierName);
     await reparierCreditsPage.creditManagement.verifySupplierPreviewExpanded(supplierName);
 

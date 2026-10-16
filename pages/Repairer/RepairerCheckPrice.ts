@@ -40,8 +40,9 @@ export class ActiveQuotesTab {
     this.saveSelectionsWarningSaveButton = this.saveSelectionsWarningDialog.locator("button.ok-button");
     this.confirmationDialog = this.page.locator("form:has(.alertable-buttons)");
     this.confirmationDialogAcceptButton = this.confirmationDialog.getByRole("button",{ name: "Accept" });
-    this.confirmPartsDialog = this.page.locator("div.ui-dialog[aria-describedby='confirmParts']" );
-    this.confirmPartsConfirmButton = this.confirmPartsDialog.locator("button.ok-button");
+    // "Confirm Parts" modal box (identified by its #confirmPartsTitle heading)
+    this.confirmPartsDialog = this.page.locator("div:has(> #confirmPartsTitle)");
+    this.confirmPartsConfirmButton = this.confirmPartsDialog.locator("#confirmPartsConfirm");
     this.partsSelectedForPurchaseHeader = this.page.locator("p.collpaseTitle",{ hasText: "Parts Selected for Purchase" });
     this.prefDateInput = this.page.locator("#prefDate");
     this.supplyNoteSelect = this.page.locator("#poNoteSelect");

@@ -1,4 +1,4 @@
-import { FrameLocator, Locator, Page, expect } from "@playwright/test";
+import { Dialog, FrameLocator, Locator, Page, expect } from "@playwright/test";
 import * as path from "path";
 import { step } from "allure-js-commons";
 import { DataGenerators } from "../../helpers/DataGenerators";
@@ -248,17 +248,41 @@ export class NewQuotesRequestTab {
   async clickAttachFileButton(): Promise<void> {
     await step('Click "Attach File" button', async () => {
       await this.attachFileButton.locator("img").click();
+      // Colorbox reuses the Images iframe; wait until it is the Attach page and fully loaded
+      await expect(this.page.locator("iframe.cboxIframe")).toHaveAttribute("src", /action=attachDoco/);
+      await expect(this.page.locator("#cboxLoadingOverlay")).toBeHidden();
+      await expect(this.attachSubmitButtons.first()).toBeVisible();
     });
   }
 
   async attachFile(filePath: string): Promise<string> {
     const fileName = path.basename(filePath);
     await step(`Attach file '${fileName}'`, async () => {
-      await this.attachFileInputs.first().setInputFiles(filePath);
-      await this.attachSubmitButtons.first().click();
-      await expect(
-        this.attachedRows.filter({ hasText: fileName }),
-      ).toBeVisible();
+      const fileInput = this.attachFileInputs.first();
+      await fileInput.setInputFiles(filePath);
+      // Confirm the file is still selected (an iframe reload drops it) before submitting
+      expect(
+        await fileInput.evaluate((el: HTMLInputElement) => el.files?.length ?? 0),
+        `'${fileName}' should be selected before clicking Attach`,
+      ).toBe(1);
+      // Attach validates client side (e.g. 2 MB per-file limit) and shows an alert instead of uploading
+      let validationAlert = "";
+      const onDialog = async (dialog: Dialog) => {
+        validationAlert = dialog.message();
+        await dialog.dismiss();
+      };
+      this.page.on("dialog", onDialog);
+      try {
+        const attachedRow = this.attachedRows.filter({ hasText: fileName });
+        await this.attachSubmitButtons.first().click();
+        // Wait for whichever comes first: the validation alert or the "Attached:" row
+        await expect
+          .poll(async () => validationAlert !== "" || (await attachedRow.isVisible()))
+          .toBe(true);
+        expect(validationAlert, `Attach rejected '${fileName}'`).toBe("");
+      } finally {
+        this.page.off("dialog", onDialog);
+      }
     });
     return fileName;
   }

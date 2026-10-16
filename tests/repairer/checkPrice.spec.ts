@@ -18,8 +18,6 @@ test.describe("Repairer: Check Price for Submit Quote", () => {
   });
 
   test("Price Check for Submit Quote - Normal Quote", async ({page}) => {
-    test.setTimeout(300_000);
-    
     await repairerNavBarPage.clickCheckPrice();
     await repairerCheckPricePage.activeQuotes.clickActiveQuotes();
 
@@ -32,7 +30,7 @@ test.describe("Repairer: Check Price for Submit Quote", () => {
     await repairerCheckPricePage.activeQuotes.verifyQuoteNumberVisible(quoteNumber);
 
     // Change to select a different preferred supplier (e.g. "s2")
-    const preferredSupplier = "Test Supplier 1";
+    const preferredSupplier = "s1";
     await repairerCheckPricePage.activeQuotes.getSupplierTotalAmount(preferredSupplier);
     await repairerCheckPricePage.activeQuotes.selectSupplier(preferredSupplier);
     await repairerCheckPricePage.activeQuotes.verifyYourCostMatchesSupplierTotal(preferredSupplier);
