@@ -62,6 +62,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(normalQuoteNumber);
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
     await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
   })
 
@@ -78,6 +79,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillCancelReferenceNumber(directQuoteNumber);
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
     await repairerOrdersPage.ordersTab.selectCancelReasonAndConfirm();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyCancelledItemsVisible(cancelledItems);
   })
 
@@ -93,6 +95,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(normalQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
   })
 
@@ -108,6 +111,7 @@ test.describe("Repairer: Quoting Parts Orders", () => {
     await repairerOrdersPage.ordersTab.fillReceiptReferenceNumber(directQuoteNumber);
     const invoiceDate = await repairerOrdersPage.ordersTab.getInvoiceDate();
     await repairerOrdersPage.ordersTab.clickUpdatePurchaserOrder();
+    await repairerOrdersPage.ordersTab.confirmReceiptIfShown();
     await repairerOrdersPage.ordersTab.verifyItemsReceivedOnDate(receivedItems, invoiceDate);
   })
 

@@ -49,10 +49,12 @@ export class CreditManagementTab {
     });
   }
 
-  // Preview toggle for a given supplier - data-supplierid is "<internal id>|<supplierName>"
+  // Preview toggle for a given supplier - data-supplierid is "<internal id>|<supplierName without spaces>"
+  // e.g. "Test Supplier 1" -> "15616|TestSupplier1"
   previewButton(supplierName: string): Locator {
+    const supplierKey = supplierName.replace(/\s+/g, "");
     return this.page.locator(
-      `.gridrow.supplierline[data-supplierid$='|${supplierName}'] .previewBtn:visible`,
+      `.gridrow.supplierline[data-supplierid$='|${supplierKey}'] .previewBtn:visible`,
     );
   }
 

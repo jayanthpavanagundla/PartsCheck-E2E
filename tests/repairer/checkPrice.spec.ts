@@ -18,8 +18,6 @@ test.describe("Repairer: Check Price for Submit Quote", () => {
   });
 
   test("Price Check for Submit Quote - Normal Quote", async ({page}) => {
-    test.setTimeout(300_000);
-    
     await repairerNavBarPage.clickCheckPrice();
     await repairerCheckPricePage.activeQuotes.clickActiveQuotes();
 

@@ -65,7 +65,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
     // SECTION 05: Suppliers
     await repairerGetPricePage.newQuote.unselectAllSuppliers();
     await repairerGetPricePage.newQuote.selectPreferredSupplier("s1");
-    await repairerGetPricePage.newQuote.selectPreferredSupplier("s3");
+    await repairerGetPricePage.newQuote.selectPreferredSupplier("s2");
     await repairerGetPricePage.newQuote.clickNext();
     await repairerGetPricePage.newQuote.verifySuppliersTabComplete();
 
@@ -120,7 +120,7 @@ test.describe("Repairer: Quote Creation Flow", () => {
 
     // SECTION 06: Select Time
     await repairerGetPricePage.newQuote.selectDateTimeDirectPurchaseQuote(3);
-    await repairerGetPricePage.newQuote.selectPONote("i enjoy stuff");
+    await repairerGetPricePage.newQuote.selectPONote("Advise ETA on all parts"); // Stg - Advise ETA on all parts Dev - i enjoy stuff
     await repairerGetPricePage.newQuote.submitAndCancel();
     await repairerGetPricePage.newQuote.submitAndConfirm();
     await repairerGetPricePage.newQuote.expectQuoteSubmittedSuccessfully();

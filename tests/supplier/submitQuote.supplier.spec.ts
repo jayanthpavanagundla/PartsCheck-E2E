@@ -33,6 +33,7 @@ test.describe("Supplier: Submit Quote Flow", () => {
     await supplierQuotes.newQuotesRequestTab.openQuoteByNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
+    await supplierQuotes.newQuotesRequestTab.selectRandomEstDelivery();
 
     // Verify the images the Repairer uploaded are visible to the Supplier
     const uploadedImages = loadQuoteImages(quoteNumber);
@@ -80,6 +81,7 @@ test.describe("Supplier: Submit Quote Flow", () => {
     await supplierQuotes.newQuotesRequestTab.openQuoteByNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.verifyReferenceMatchesQuoteNumber(quoteNumber);
     await supplierQuotes.newQuotesRequestTab.fillSupplierQuoteNr(quoteNumber);
+    await supplierQuotes.newQuotesRequestTab.selectRandomEstDelivery();
 
     // Verify the images the Repairer uploaded are visible to the Supplier
     const uploadedImages = loadQuoteImages(quoteNumber);

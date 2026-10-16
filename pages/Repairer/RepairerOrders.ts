@@ -183,6 +183,20 @@ export class OrdersTab {
     });
   }
 
+  /** Clicks OK on the "Confirm Receipt and Supplier Rating" popup if it appears after Update */
+  async confirmReceiptIfShown(): Promise<void> {
+    const confirmPopup = this.page.locator("#confirmBox_content");
+    const shown = await confirmPopup
+      .waitFor({ state: "visible", timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!shown) return;
+    await step("Click OK on 'Confirm Receipt and Supplier Rating' popup", async () => {
+      await confirmPopup.locator("#poSubmitDiv .l_greenButton").click();
+      await expect(confirmPopup).toBeHidden();
+    });
+  }
+
   async selectCancelReasonAndConfirm(): Promise<string> {
     return await step("Select a random cancel reason and confirm in 'Cancel Item' dialog", async () => {
         await expect(this.cancelReasonSelect).toBeVisible();
