@@ -262,7 +262,7 @@ export class NewQuoteTab extends BasePage {
 
   async selectMargin(): Promise<string> {
     const margin = await DataGenerators.selectRandomOption(this.marginDropdown);
-    await step(`Select Margin: ${margin}`, async () => {});
+    await step(`Select Margin: ${margin}`, async () => { });
     return margin;
   }
 
@@ -360,19 +360,19 @@ export class NewQuoteTab extends BasePage {
     const bodyStyle = await DataGenerators.selectRandomOption(
       this.bodyStyleDropdown,
     );
-    await step(`Select Body Style: ${bodyStyle}`, async () => {});
+    await step(`Select Body Style: ${bodyStyle}`, async () => { });
     return bodyStyle;
   }
 
   async selectRandomMonth(): Promise<string> {
     const month = await DataGenerators.selectRandomOption(this.monthDropdown);
-    await step(`Select Month: ${month}`, async () => {});
+    await step(`Select Month: ${month}`, async () => { });
     return month;
   }
 
   async selectRandomYear(): Promise<string> {
     const year = await DataGenerators.selectRandomOption(this.yearDropdown);
-    await step(`Select Year: ${year}`, async () => {});
+    await step(`Select Year: ${year}`, async () => { });
     return year;
   }
 
@@ -511,6 +511,25 @@ export class NewQuoteTab extends BasePage {
     throw lastError;
   }
 
+  /** Waits until the part list has rows and its count holds steady for 500ms; returns false on timeout */
+  private async waitForStablePartList(parts: Locator, timeout: number): Promise<boolean> {
+    try {
+      await expect
+        .poll(
+          async () => {
+            const before = await parts.count();
+            await this.page.waitForTimeout(500);
+            return before > 0 && before === (await parts.count());
+          },
+          { timeout },
+        )
+        .toBe(true);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async addFirstPartFromCategory(index: number) {
     await step(`Select category ${index} and add a random part`, async () => {
       await this.waitForCategoriesLoaded();
@@ -519,25 +538,23 @@ export class NewQuoteTab extends BasePage {
       await category.scrollIntoViewIfNeeded();
       await this.clickWithRetry(category);
 
-      const selectorActions = this.buildFrame.locator(
-        ".build-content .lineItem.itemTypeRow1 .selector-action:visible",
-      );
+      // Only real part rows carry an itemID input; placeholder/loading rows don't
+      const selectorActions = this.buildFrame
+        .locator(".build-content .lineItem.itemTypeRow1 .selector-action:visible")
+        .filter({ has: this.buildFrame.locator('input[name="itemID"]') });
+      const buildContentHtml = () =>
+        this.buildFrame
+          .locator(".build-content")
+          .innerHTML()
+          .catch(() => "<could not read .build-content>");
 
-      try {
-        await expect(selectorActions.first()).toBeVisible({ timeout: 5000 });
-      } catch {
-        // Some categories don't render their parts on the first click;
-        // reselecting the same category reliably loads them.
+      if (!(await this.waitForStablePartList(selectorActions, 5000))) {
+        // Some categories don't render their parts on the first click, or
+        // render them and then re-render empty; reselecting reliably loads them.
         await this.clickWithRetry(category);
-        try {
-          await expect(selectorActions.first()).toBeVisible();
-        } catch {
-          const html = await this.buildFrame
-            .locator(".build-content")
-            .innerHTML()
-            .catch(() => "<could not read .build-content>");
+        if (!(await this.waitForStablePartList(selectorActions, 15000))) {
           throw new Error(
-            `No parts loaded for category "${categoryName}" (index ${index}) even after reselecting it.\nCurrent .build-content markup:\n${html}`,
+            `No parts loaded for category "${categoryName}" (index ${index}) even after reselecting it.\nCurrent .build-content markup:\n${await buildContentHtml()}`,
           );
         }
       }
@@ -545,9 +562,16 @@ export class NewQuoteTab extends BasePage {
       const partCount = await selectorActions.count();
       const randomIndex = Math.floor(Math.random() * partCount);
       const selectorAction = selectorActions.nth(randomIndex);
-      const itemId = await selectorAction
-        .locator('input[name="itemID"]')
-        .getAttribute("value");
+      let itemId: string | null;
+      try {
+        itemId = await selectorAction
+          .locator('input[name="itemID"]')
+          .getAttribute("value", { timeout: 5000 });
+      } catch {
+        throw new Error(
+          `Part list for category "${categoryName}" (index ${index}) changed before part ${randomIndex + 1} of ${partCount} could be read.\nCurrent .build-content markup:\n${await buildContentHtml()}`,
+        );
+      }
 
       const addedPart = this.buildFrame.locator(
         `.build-right-content .selection-content[data-itemid="${itemId}"] .childEditText`,

@@ -71,6 +71,22 @@ export class LoginPage {
     await this.fingerprintFrame.getByText(name, { exact: true }).click();
   }
 
+  /**
+   * The "Welcome to PartsCheck" select-user popup can reappear on any page load
+   * after sign-in, and its #cboxOverlay blocks every click. Registers a handler
+   * that picks the fingerprint test user whenever the popup shows up.
+   */
+  async autoSelectFingerprintUser(name: string) {
+    await this.page.addLocatorHandler(
+      this.page.locator("#cboxOverlay.welcome"),
+      async () => {
+        await step(`Welcome popup shown - select user "${name}"`, async () => {
+          await this.selectFingerprintTestUser(name);
+        });
+      },
+    );
+  }
+
   async expectLoginErrorVisible() {
     await expect(this.errorMessage).toBeVisible();
     await expect(this.errorMessage).toContainText(
