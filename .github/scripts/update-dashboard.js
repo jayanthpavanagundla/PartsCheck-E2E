@@ -137,7 +137,7 @@ const latestCard = (r) => `
         <span>${icons.clock} Duration: ${fmtDuration(r.duration)}</span>
         <span>${icons.branch} Build: <a href="${esc(r.runUrl)}">${esc(r.sha)}</a> (${esc(r.branch)})</span>
       </div>
-      <a class="btn" href="./${esc(r.report)}">View Report ${icons.arrow}</a>
+      <a class="btn" href="./${esc(r.report)}" target="_blank" rel="noopener">View Report ${icons.arrow}</a>
     </div>
   </section>`;
 
@@ -154,7 +154,7 @@ const rows = runs
           <td>${r.skipped}</td>
           <td>${r.total}</td>
           <td>${fmtDuration(r.duration)}</td>
-          <td class="actions"><a href="./${esc(r.report)}">Report</a></td>
+          <td class="actions"><a href="./${esc(r.report)}" target="_blank" rel="noopener">Report</a></td>
         </tr>`,
   )
   .join("");
