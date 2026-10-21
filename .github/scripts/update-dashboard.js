@@ -154,13 +154,12 @@ const rows = runs
           <td>${r.skipped}</td>
           <td>${r.total}</td>
           <td>${fmtDuration(r.duration)}</td>
-          <td class="actions"><a href="./${esc(r.report)}">Report</a> &middot; <a href="${esc(r.runUrl)}">Run</a></td>
+          <td class="actions"><a href="./${esc(r.report)}">Report</a></td>
         </tr>`,
   )
   .join("");
 
 const suiteOptions = latestBySuite.map((r) => `<option value="${esc(r.slug)}">${esc(r.suite)}</option>`).join("");
-const allGreen = latestBySuite.every((r) => r.status === "passed");
 
 const html = `<!doctype html>
 <html lang="en">
@@ -175,16 +174,6 @@ const html = `<!doctype html>
   body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.45; }
   a { color:var(--blue); text-decoration:none; font-weight:600; }
   a:hover { text-decoration:underline; }
-  .nav { background:#fff; border-bottom:1px solid var(--line); }
-  .nav-in { max-width:1440px; margin:auto; padding:0 16px; height:66px; display:flex; align-items:center; gap:32px; }
-  .brand { display:flex; align-items:center; gap:12px; font-weight:800; font-size:20px; }
-  .logo { width:40px; height:40px; border-radius:9px; background:var(--blue); color:#fff; display:grid; place-items:center; }
-  .tabs { display:flex; gap:8px; height:100%; }
-  .tabs a { display:flex; align-items:center; padding:0 18px; color:var(--muted); font-weight:500; border-bottom:2px solid transparent; }
-  .tabs a.active { color:var(--blue); border-bottom-color:var(--blue); background:#f3f6fd; }
-  .pill { margin-left:auto; display:flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; font-size:14px; font-weight:500; white-space:nowrap; }
-  .pill.ok { background:var(--green-bg); color:#166534; } .pill.bad { background:var(--red-bg); color:#991b1b; }
-  .pill i { width:8px; height:8px; border-radius:50%; background:currentColor; }
   main { max-width:1440px; margin:auto; padding:32px 16px 48px; }
   .page-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
   h1 { margin:0; font-size:38px; font-weight:800; letter-spacing:-.5px; }
@@ -226,7 +215,6 @@ const html = `<!doctype html>
   .actions a { font-weight:700; }
   .empty { padding:40px; text-align:center; color:var(--muted); }
   @media (max-width:900px) {
-    .tabs { display:none; }
     .stats { grid-template-columns:repeat(2,1fr); }
     h1 { font-size:28px; }
     .stat { padding:16px; gap:16px; }
@@ -236,18 +224,6 @@ const html = `<!doctype html>
 </style>
 </head>
 <body>
-<header class="nav">
-  <div class="nav-in">
-    <div class="brand"><span class="logo">${icons.check}</span>Test Automation</div>
-    <nav class="tabs">
-      <a class="active" href="#">Dashboard</a>
-      <a href="#history">Runs</a>
-      <a href="${esc(`${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions`)}">Actions</a>
-    </nav>
-    <span class="pill ${allGreen ? "ok" : "bad"}"><i></i>${allGreen ? "All Suites Passing" : "Failures in Latest Run"}</span>
-  </div>
-</header>
-
 <main>
   <div class="page-head">
     <div>
