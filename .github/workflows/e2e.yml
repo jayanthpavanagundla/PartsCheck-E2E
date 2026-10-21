@@ -1,0 +1,253 @@
+name: PartsCheck E2E (Playwright + Allure)
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Which tests to run'
+        type: choice
+        required: true
+        default: 'Tests'
+        options:
+          - 'Tests'          # whole tests/ folder
+          - 'Margin Rules'   # tests/repairer/marginRules
+      environment:
+        description: 'Target environment'
+        type: choice
+        required: true
+        default: 'stg'
+        options:
+          - stg
+          - dev
+          - prod
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+# Tests share server-side state (quotes, credit requests) and every run
+# force-pushes gh-pages, so never let two runs overlap.
+concurrency:
+  group: partscheck-e2e
+  cancel-in-progress: false
+
+env:
+  # inputs.* is empty on pull_request, so fall back to the full suite on stg.
+  SUITE: ${{ inputs.suite || 'Tests' }}
+  TARGET_ENV: ${{ inputs.environment || 'stg' }}
+  KEEP_RUNS: 30   # archived Allure reports kept per suite on gh-pages
+  PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Secrets are read from the GitHub Environment named after the target env
+    # (stg / dev / prod), falling back to repository secrets.
+    environment: ${{ inputs.environment || 'stg' }}
+
+    steps:
+      # =========================================================
+      # Checkout + resolve which folder to run
+      # =========================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve suite
+        id: suite
+        run: |
+          # To add a folder: add it to the `suite` options above and a line here.
+          case "$SUITE" in
+            "Margin Rules") TEST_PATH="tests/repairer/marginRules"; SLUG="margin-rules" ;;
+            *)              TEST_PATH="tests";                      SLUG="tests" ;;
+          esac
+          echo "path=$TEST_PATH" >> "$GITHUB_OUTPUT"
+          echo "slug=$SLUG"      >> "$GITHUB_OUTPUT"
+          echo "run_dir=$(date -u +%Y-%m-%d_%H-%M-%S)_${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "Running '$SUITE' ($TEST_PATH) against $TARGET_ENV"
+
+      # =========================================================
+      # Setup Node, Java (for Allure CLI) and browsers
+      # =========================================================
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Java (Allure CLI)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # =========================================================
+      # Run tests
+      # (.env.<env> is gitignored; dotenv never overrides real env
+      #  vars, so the secrets below are what playwright.config.ts reads)
+      # =========================================================
+      - name: Run Playwright tests (${{ env.SUITE }})
+        id: tests
+        continue-on-error: true
+        env:
+          ENV: ${{ env.TARGET_ENV }}
+          # Every value comes from the GitHub Environment picked in the dropdown
+          # (Settings -> Environments -> stg / dev / prod). Non-sensitive values
+          # can be Variables (visible) or Secrets (masked) - either works.
+          BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
+          REPAIRER_LANDING_URL: ${{ vars.REPAIRER_LANDING_URL || secrets.REPAIRER_LANDING_URL }}
+          SUPPLIER_LANDING_URL: ${{ vars.SUPPLIER_LANDING_URL || secrets.SUPPLIER_LANDING_URL }}
+          REPAIRER_FINGERPRINT_USER: ${{ vars.REPAIRER_FINGERPRINT_USER || secrets.REPAIRER_FINGERPRINT_USER }}
+          SUPPLIER_FINGERPRINT_USER: ${{ vars.SUPPLIER_FINGERPRINT_USER || secrets.SUPPLIER_FINGERPRINT_USER }}
+          REPAIRER_USERNAME: ${{ secrets.REPAIRER_USERNAME }}
+          REPAIRER_PASSWORD: ${{ secrets.REPAIRER_PASSWORD }}
+          REPAIRER_ADMIN_PASSWORD: ${{ secrets.REPAIRER_ADMIN_PASSWORD }}
+          SUPPLIER_USERNAME: ${{ secrets.SUPPLIER_USERNAME }}
+          SUPPLIER_PASSWORD: ${{ secrets.SUPPLIER_PASSWORD }}
+          SUPPLIER_ADMIN_PASSWORD: ${{ secrets.SUPPLIER_ADMIN_PASSWORD }}
+        run: npx playwright test "${{ steps.suite.outputs.path }}"
+
+      # =========================================================
+      # Checkout gh-pages (or start it on the very first run)
+      # =========================================================
+      - name: Checkout gh-pages
+        id: ghp
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: ghp
+
+      - name: Initialise gh-pages (first run only)
+        if: steps.ghp.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf ghp && mkdir ghp
+          git -C ghp init -b gh-pages
+          git -C ghp remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      # =========================================================
+      # Restore Allure history -> per-test History tab + trend charts
+      # Each suite keeps its own history so trends don't mix.
+      # =========================================================
+      - name: Restore Allure history
+        run: |
+          mkdir -p allure-results/history
+          cp -r "ghp/reports/${{ steps.suite.outputs.slug }}/latest/history/." allure-results/history/ 2>/dev/null \
+            && echo "History restored" || echo "No previous history (first run for this suite)"
+
+      - name: Write Allure executor + environment info
+        run: |
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          cat > allure-results/executor.json <<EOF
+          {
+            "name": "GitHub Actions",
+            "type": "github",
+            "url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions",
+            "buildOrder": ${GITHUB_RUN_NUMBER},
+            "buildName": "${SUITE} #${GITHUB_RUN_NUMBER}",
+            "buildUrl": "${RUN_URL}",
+            "reportUrl": "${PAGES_URL}/reports/${{ steps.suite.outputs.slug }}/${{ steps.suite.outputs.run_dir }}/",
+            "reportName": "PartsCheck E2E - ${SUITE}"
+          }
+          EOF
+          cat > allure-results/environment.properties <<EOF
+          Suite=${SUITE}
+          Environment=${TARGET_ENV}
+          Branch=${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}
+          Commit=${GITHUB_SHA::7}
+          Trigger=${GITHUB_EVENT_NAME}
+          EOF
+
+      # =========================================================
+      # Generate Allure report
+      # =========================================================
+      - name: Generate Allure report
+        run: npx --yes allure-commandline@2.30.0 generate allure-results -o allure-report --clean
+
+      # =========================================================
+      # Archive report, update dashboard, publish gh-pages
+      # =========================================================
+      - name: Update dashboard
+        id: dash
+        env:
+          SITE_DIR: ghp
+          REPORT_DIR: allure-report
+          SUITE_SLUG: ${{ steps.suite.outputs.slug }}
+          RUN_DIR: ${{ steps.suite.outputs.run_dir }}
+        run: |
+          DEST="ghp/reports/${SUITE_SLUG}"
+          mkdir -p "${DEST}/${RUN_DIR}"
+          cp -r allure-report/. "${DEST}/${RUN_DIR}/"
+
+          # latest/ = history for the next run + a redirect to the newest report
+          # (avoids storing every report twice).
+          rm -rf "${DEST}/latest" && mkdir -p "${DEST}/latest"
+          cp -r allure-report/history "${DEST}/latest/history"
+          cat > "${DEST}/latest/index.html" <<EOF
+          <!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=../${RUN_DIR}/">
+          <a href="../${RUN_DIR}/">Latest ${SUITE} report</a>
+          EOF
+
+          node .github/scripts/update-dashboard.js
+          touch ghp/.nojekyll
+
+      - name: Publish gh-pages
+        working-directory: ghp
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Single orphan commit each time so old reports/videos don't bloat git history.
+          git checkout --orphan gh-pages-new
+          git add -A
+          git commit -q -m "E2E ${SUITE} (${TARGET_ENV}) - ${{ steps.suite.outputs.run_dir }}"
+          git branch -M gh-pages
+          git push -f origin gh-pages
+
+      # =========================================================
+      # Raw reports as build artifacts too
+      # =========================================================
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports-${{ steps.suite.outputs.slug }}-${{ github.run_number }}
+          path: |
+            allure-report
+            playwright-report
+          retention-days: 14
+          if-no-files-found: ignore
+
+      # =========================================================
+      # Job summary
+      # =========================================================
+      - name: Job Summary
+        if: always()
+        run: |
+          {
+            echo "## PartsCheck E2E - ${SUITE} (${TARGET_ENV})"
+            echo ""
+            echo "| Status | Passed | Failed | Skipped | Total | Duration |"
+            echo "|---|---|---|---|---|---|"
+            echo "| ${{ steps.dash.outputs.status || 'n/a' }} | ${{ steps.dash.outputs.passed }} | ${{ steps.dash.outputs.failed }} | ${{ steps.dash.outputs.skipped }} | ${{ steps.dash.outputs.total }} | ${{ steps.dash.outputs.duration }} |"
+            echo ""
+            echo "- [Allure Report](${PAGES_URL}/reports/${{ steps.suite.outputs.slug }}/${{ steps.suite.outputs.run_dir }}/)"
+            echo "- [Dashboard](${PAGES_URL}/)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # =========================================================
+      # FINAL GATE - fail the job (and the PR check) if tests failed
+      # =========================================================
+      - name: Final Gate
+        if: always() && steps.tests.outcome == 'failure'
+        run: |
+          echo "::error::Playwright tests failed - see ${PAGES_URL}/reports/${{ steps.suite.outputs.slug }}/${{ steps.suite.outputs.run_dir }}/"
+          exit 1
