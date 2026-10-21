@@ -236,7 +236,7 @@ const html = `<!doctype html>
     </div>
   </div>
 
-  ${latestBySuite.map(latestCard).join("\n")}
+  ${runs.length ? latestCard(runs[0]) : ""}
 
   <section class="card" id="history">
     <div class="hist-head">
