@@ -9,7 +9,7 @@ const siteDir = env.SITE_DIR || "ghp";
 const reportDir = env.REPORT_DIR || "allure-report";
 const slug = env.SUITE_SLUG;
 const runDir = env.RUN_DIR;
-const keepRuns = parseInt(env.KEEP_RUNS || "30", 10);
+const keepRuns = parseInt(env.KEEP_RUNS || "15", 10);
 
 const readJson = (file, fallback) => {
   try {
@@ -213,6 +213,9 @@ const html = `<!doctype html>
   th { text-align:left; background:#eef2f8; color:#334155; font-weight:600; padding:14px 20px; }
   td { padding:13px 20px; border-bottom:1px solid var(--line); white-space:nowrap; }
   .actions a { font-weight:700; }
+  .pager { display:flex; justify-content:flex-end; align-items:center; gap:14px; margin-top:16px; color:var(--muted); font-size:15px; }
+  .pager button { padding:8px 16px; border:1px solid var(--line); border-radius:8px; background:#fff; font:inherit; font-weight:600; color:var(--text); cursor:pointer; }
+  .pager button:disabled { opacity:.45; cursor:default; }
   .empty { padding:40px; text-align:center; color:var(--muted); }
   @media (max-width:900px) {
     .stats { grid-template-columns:repeat(2,1fr); }
@@ -244,7 +247,7 @@ const html = `<!doctype html>
       <div class="filters">
         <select id="suiteFilter" aria-label="Suite"><option value="all">All suites</option>${suiteOptions}</select>
         <select id="limit" aria-label="Number of runs">
-          <option value="10">Last 10 runs</option><option value="25">Last 25 runs</option><option value="1000">All runs</option>
+          <option value="10">Last 10 runs</option><option value="15">Last 15 runs</option>
         </select>
       </div>
     </div>
@@ -254,6 +257,11 @@ const html = `<!doctype html>
         <tbody id="rows">${rows}</tbody>
       </table>
       ${runs.length ? "" : '<div class="empty">No runs yet.</div>'}
+    </div>
+    <div class="pager" id="pager">
+      <button id="prev" type="button">&lsaquo; Previous</button>
+      <span id="pageInfo"></span>
+      <button id="next" type="button">Next &rsaquo;</button>
     </div>
   </section>
 </main>
@@ -265,17 +273,28 @@ const html = `<!doctype html>
     if (!isNaN(d)) t.textContent = d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
   });
   var suiteSel = document.getElementById("suiteFilter"), limitSel = document.getElementById("limit");
+  // The table shows at most PAGE_SIZE rows; picking "Last 15 runs" spills the extra rows onto page 2.
+  var PAGE_SIZE = 10, page = 0;
+  var prevBtn = document.getElementById("prev"), nextBtn = document.getElementById("next"), info = document.getElementById("pageInfo");
   function applyFilter() {
-    var n = 0, max = +limitSel.value, s = suiteSel.value;
+    var max = +limitSel.value, s = suiteSel.value, n = 0, matched = [];
     document.querySelectorAll("#rows tr").forEach(function (tr) {
-      var show = (s === "all" || tr.dataset.suite === s) && n < max;
-      if (show) n++;
-      tr.style.display = show ? "" : "none";
+      tr.style.display = "none";
+      if ((s === "all" || tr.dataset.suite === s) && n < max) { n++; matched.push(tr); }
     });
+    var pages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
+    page = Math.min(page, pages - 1);
+    matched.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).forEach(function (tr) { tr.style.display = ""; });
+    prevBtn.disabled = page === 0;
+    nextBtn.disabled = page >= pages - 1;
+    info.textContent = "Page " + (page + 1) + " of " + pages;
+    document.getElementById("pager").style.display = pages > 1 ? "" : "none";
   }
-  suiteSel.onchange = limitSel.onchange = applyFilter;
+  suiteSel.onchange = limitSel.onchange = function () { page = 0; applyFilter(); };
+  prevBtn.onclick = function () { page--; applyFilter(); };
+  nextBtn.onclick = function () { page++; applyFilter(); };
   document.querySelectorAll("a[data-suite]").forEach(function (a) {
-    a.addEventListener("click", function () { suiteSel.value = a.dataset.suite; limitSel.value = "1000"; applyFilter(); });
+    a.addEventListener("click", function () { suiteSel.value = a.dataset.suite; limitSel.value = "15"; page = 0; applyFilter(); });
   });
   applyFilter();
 </script>
