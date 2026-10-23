@@ -626,7 +626,9 @@ export class MarginSettingsTab {
                     let method: string;
                     if (accepted) {
                         method = await step("Select Pricing Method", async (ctx) => {
-                            await DataGenerators.selectRandomOption(methodSelect);
+                            // Never pick "Charge of List" (value="1")
+                            const methods = (await DataGenerators.getSelectableValues(methodSelect)).filter((v) => v !== "1");
+                            await methodSelect.selectOption(DataGenerators.randomFromArray(methods));
                             const text = await this.selectedOptionText(methodSelect);
                             await ctx.displayName(`Select Pricing Method: ${text}`);
                             return text;
