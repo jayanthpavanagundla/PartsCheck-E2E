@@ -1,0 +1,523 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: repairer/partsOrder.spec.ts >> Repairer: Quoting Parts Orders >> Items Credit Request - Normal Quote
+- Location: tests/repairer/partsOrder.spec.ts:118:7
+
+# Error details
+
+```
+Test timeout of 60000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 60000ms exceeded.
+Call log:
+  - waiting for locator('label[for="RC_145361216"]')
+    - locator resolved to <label for="RC_145361216">…</label>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    110 × waiting for element to be visible, enabled and stable
+        - element is not visible
+      - retrying click action
+        - waiting 500ms
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - link [ref=e7] [cursor=pointer]:
+        - /url: welcome.php
+        - img [ref=e8]
+      - generic [ref=e10]:
+        - generic [ref=e11] [cursor=pointer]:
+          - generic [ref=e13]: 
+          - generic [ref=e14]: DASHBOARD
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e17]: 
+          - generic [ref=e18]: GET PRICE
+        - generic [ref=e19] [cursor=pointer]:
+          - generic [ref=e21]: 
+          - generic [ref=e22]: CHECK PRICE
+        - generic [ref=e23] [cursor=pointer]:
+          - generic [ref=e25]: 
+          - generic [ref=e26]: ORDERS
+        - generic [ref=e27] [cursor=pointer]:
+          - generic [ref=e29]: 
+          - generic [ref=e30]: CREDITS
+        - generic [ref=e31] [cursor=pointer]:
+          - generic [ref=e33]: 
+          - generic [ref=e34]: REPORTS
+        - generic [ref=e35] [cursor=pointer]:
+          - generic [ref=e37]: 
+          - generic [ref=e38]: SETTINGS
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - textbox "Search..." [ref=e41]
+          - generic [ref=e43] [cursor=pointer]: 
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: TU
+              - generic [ref=e48] [cursor=pointer]: 
+            - text: 
+          - link "TeamViewer" [ref=e49] [cursor=pointer]:
+            - /url: https://www.teamviewer.com/link/?url=505374&id=2025955524
+            - img "TeamViewer" [ref=e50]
+          - generic [ref=e51]: "|"
+          - link "LOGOUT" [ref=e52] [cursor=pointer]:
+            - /url: ../global/index.php?action=logout
+    - generic [ref=e54]:
+      - generic [ref=e56] [cursor=pointer]:
+        - generic [ref=e57]: 
+        - text: Parts
+      - generic [ref=e59] [cursor=pointer]:
+        - generic [ref=e60]: 
+        - text: Info
+      - generic [ref=e62] [cursor=pointer]:
+        - generic [ref=e63]: 
+        - text: Messages
+      - generic [ref=e65] [cursor=pointer]:
+        - generic [ref=e66]: 
+        - text: Documents
+    - list [ref=e69]:
+      - listitem [ref=e70]: Orders > 469155
+      - listitem [ref=e71]: "> Parts"
+    - generic [ref=e72]:
+      - text: 
+      - generic [ref=e73]:
+        - generic [ref=e74]: "Invoice Total(INC GST):"
+        - generic [ref=e75]: $ 0.00
+        - generic [ref=e76]: "Items Ordered Total:"
+        - generic [ref=e77]: $571.00
+        - generic [ref=e78]: Invoice Total(EX GST)
+        - generic [ref=e79]: $0.00
+        - generic [ref=e80]: Invoice Total(GST)
+        - generic [ref=e81]: $0.00
+        - generic [ref=e82]: Invoice Number
+        - textbox [ref=e84]
+        - generic [ref=e85]: Invoice Date
+        - generic [ref=e87]:
+          - textbox [ref=e88]: 23/10/2026
+          - button "" [ref=e89]:
+            - generic [ref=e90]: 
+        - generic [ref=e91]:
+          - generic [ref=e92] [cursor=pointer]: request all eta
+          - generic [ref=e93] [cursor=pointer]: update
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - generic [ref=e98]: 
+          - generic [ref=e99]: "ORDER: 469155"
+          - generic [ref=e100]: s1
+          - generic [ref=e101]: Toyota MOD49BK3C, 1976. RNBKMD7X
+          - generic [ref=e103]: 
+        - generic [ref=e104]:
+          - generic [ref=e106]: Show Cancelled Parts
+          - generic [ref=e109]: Show Item Comments
+          - generic [ref=e111] [cursor=pointer]: Receive Parts
+          - generic [ref=e112] [cursor=pointer]: Credit Request
+          - generic [ref=e113] [cursor=pointer]: Cancel Items
+        - generic [ref=e114]:
+          - generic [ref=e115]: "#"
+          - generic [ref=e116]: Part Description
+          - generic [ref=e117]: Part Number
+          - generic [ref=e118]: Sell
+          - generic [ref=e119]: Cost
+          - generic [ref=e120]: Qty Ord
+          - generic [ref=e121]: Credit
+          - generic [ref=e122]: Qty Rec
+          - generic [ref=e123]: Edit
+          - generic [ref=e125]: Status/ETA
+          - generic [ref=e126]:
+            - text: Credit Item
+            - generic [ref=e128] [cursor=pointer]: 
+        - generic [ref=e130]:
+          - generic [ref=e131]: "1"
+          - generic [ref=e132]: Beaver Panel Inner Trim
+          - generic [ref=e133]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e135]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e136]: $86.40
+          - generic [ref=e138]: $72.00
+          - generic [ref=e140]: "1"
+          - generic [ref=e141]: "-"
+          - textbox [ref=e143]: "1"
+          - generic [ref=e145] [cursor=pointer]: 
+          - generic [ref=e147]: 
+          - generic "Awaiting Supplier to Send Parts" [ref=e149]:
+            - text: Not Sent
+            - text: No ETA Requested
+        - generic [ref=e151]:
+          - generic [ref=e152]: "2"
+          - generic [ref=e153]: Bonnet Sound Pad Clips xAR
+          - generic [ref=e154]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e156]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e157]: $86.40
+          - generic [ref=e159]: $72.00
+          - generic [ref=e161]: "1"
+          - generic [ref=e162]: "-"
+          - textbox [ref=e164]: "1"
+          - generic [ref=e166] [cursor=pointer]: 
+          - generic [ref=e168]: 
+          - generic "Awaiting Supplier to Send Parts" [ref=e170]:
+            - text: Not Sent
+            - text: No ETA Requested
+        - generic [ref=e172]:
+          - generic [ref=e173]: "3"
+          - generic [ref=e174]:
+            - text: Boot Lid Garnish
+            - text: "Supplier Invoice Nr: RP-469155-CNIF8"
+          - generic [ref=e175]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e177]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e178]: $61.20
+          - generic [ref=e180]: $51.00
+          - generic [ref=e182]: "1"
+          - generic [ref=e183]: "-"
+          - textbox [ref=e185]: "1"
+          - generic [ref=e187] [cursor=pointer]: 
+          - generic [ref=e189]: 
+          - generic "Items received on 23/10/2026" [ref=e191]:
+            - text: Received
+            - text: On 23/10/2026
+        - generic [ref=e197]:
+          - generic [ref=e198]: "4"
+          - generic [ref=e199]: Drip Rail Mould L/H
+          - generic [ref=e200]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e202]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e203]: $114.00
+          - generic [ref=e205]: $95.00
+          - generic [ref=e207]: "1"
+          - generic [ref=e208]: "-"
+          - textbox [ref=e210]: "1"
+          - generic [ref=e212] [cursor=pointer]: 
+          - generic [ref=e214]: 
+          - generic "Awaiting Supplier to Send Parts" [ref=e216]:
+            - text: Not Sent
+            - text: No ETA Requested
+        - generic [ref=e218]:
+          - generic [ref=e219]: "6"
+          - generic [ref=e220]: Door Frame Tape (up Horizontal) L/H/F
+          - generic [ref=e221]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e223]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e224]: $180.00
+          - generic [ref=e226]: $150.00
+          - generic [ref=e228]: "1"
+          - generic [ref=e229]: "-"
+          - textbox [ref=e231]: "1"
+          - generic [ref=e233] [cursor=pointer]: 
+          - generic [ref=e235]: 
+          - generic "Awaiting Supplier to Send Parts" [ref=e237]:
+            - text: Not Sent
+            - text: No ETA Requested
+        - generic [ref=e239]:
+          - generic [ref=e240]: "7"
+          - generic [ref=e241]:
+            - text: Door Shell L/H/R
+            - text: "Supplier Invoice Nr: RP-469155-CNIF8"
+          - generic [ref=e242]:
+            - 'generic "Part Number Modified by Supplier. \\nPurchaser Part Number: \\nSupplier Part Number: Aftermarket" [ref=e244]': Aftermarket
+            - text: (After Market)
+          - generic [ref=e245]: $157.20
+          - generic [ref=e247]: $131.00
+          - generic [ref=e249]: "1"
+          - generic [ref=e250]: "-"
+          - textbox [ref=e252]: "1"
+          - generic [ref=e254] [cursor=pointer]: 
+          - generic [ref=e256]: 
+          - generic "Items received on 23/10/2026" [ref=e258]:
+            - text: Received
+            - text: On 23/10/2026
+        - generic:
+          - link "OPEN CHECK PRICE":
+            - /url: price-grid.php?draftID=17591150
+            - generic [ref=e263] [cursor=pointer]: OPEN CHECK PRICE
+          - generic [ref=e264] [cursor=pointer]: SMART RECEIPTING
+          - generic [ref=e265] [cursor=pointer]:
+            - generic [ref=e266]: 
+            - text: Add Items
+      - text:                         
+  - generic [ref=e269]:
+    - generic [ref=e270]: Logged in as King Panels (Repairer) 3:05pm
+    - link "Contact PartsCheck" [ref=e272] [cursor=pointer]:
+      - /url: http://www.partscheck.com.au/global/contact-partscheck.php
+  - status [ref=e273]
+  - log [ref=e274]
+  - log [ref=e275]
+  - log [ref=e276]
+  - log [ref=e277]
+  - log [ref=e278]
+  - log [ref=e279]
+  - log [ref=e280]
+  - log [ref=e281]
+  - log [ref=e282]
+  - log [ref=e283]
+  - log [ref=e284]
+  - log [ref=e285]
+  - log [ref=e286]
+  - log [ref=e287]
+  - log [ref=e288]
+  - log [ref=e289]
+  - log [ref=e290]
+  - log [ref=e291]
+  - log [ref=e292]
+  - log [ref=e293]
+  - log [ref=e294]
+  - log [ref=e295]
+  - log [ref=e296]
+  - log [ref=e297]
+  - log [ref=e298]
+  - log [ref=e299]
+  - log [ref=e300]
+  - log [ref=e301]
+  - log [ref=e302]
+  - log [ref=e303]
+  - log [ref=e304]
+  - log [ref=e305]
+  - log [ref=e306]
+  - log [ref=e307]
+  - log [ref=e308]
+  - log [ref=e309]
+  - log [ref=e310]
+  - log [ref=e311]
+  - log [ref=e312]
+  - log [ref=e313]
+  - log [ref=e314]
+  - log [ref=e315]
+  - log [ref=e316]
+  - log [ref=e317]
+  - log [ref=e318]
+  - log [ref=e319]
+  - log [ref=e320]
+  - log [ref=e321]
+  - log [ref=e322]
+  - log [ref=e323]
+  - log [ref=e324]
+```
+
+# Test source
+
+```ts
+  138 |     }
+  139 |     return picked;
+  140 |   }
+  141 | 
+  142 |   async selectItemsToCancel(count: number = 4): Promise<string[]> {
+  143 |     const total = await this.itemSelectCheckboxes.count();
+  144 |     const indices = this.pickRandomIndices(count, total);
+  145 | 
+  146 |     const selections: { checkboxId: string; description: string }[] = [];
+  147 |     for (const index of indices) {
+  148 |       const checkbox = this.itemSelectCheckboxes.nth(index);
+  149 |       const checkboxId = await checkbox.getAttribute("id");
+  150 |       const itemId = await checkbox.getAttribute("data-id");
+  151 |       const description = (
+  152 |         await this.page.locator(`#PO_ITEM_${itemId} .orderDes`).innerText()
+  153 |       )
+  154 |         .split("\n")[0]
+  155 |         .trim();
+  156 |       selections.push({ checkboxId: checkboxId!, description });
+  157 |     }
+  158 | 
+  159 |     await step(
+  160 |       `Select ${count} order items to cancel: [${selections.map((s) => s.description).join(", ")}]`,
+  161 |       async () => {
+  162 |         for (const { checkboxId } of selections) {
+  163 |           await this.page.locator(`label[for="${checkboxId}"]`).click();
+  164 |         }
+  165 |       },
+  166 |     );
+  167 | 
+  168 |     return selections.map((s) => s.description);
+  169 |   }
+  170 | 
+  171 |   async fillCancelReferenceNumber(quoteNumber: string): Promise<string> {
+  172 |     return await step("Fill cancel reference number in 'RIN' field", async () => {
+  173 |         const reference = `CANCEL${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+  174 |         await this.referenceInput.fill(reference);
+  175 |         return reference;
+  176 |       },
+  177 |     );
+  178 |   }
+  179 | 
+  180 |   async clickUpdatePurchaserOrder(): Promise<void> {
+  181 |     await step("Click 'update' to submit the cancel request", async () => {
+  182 |       await this.updatePurchaserOrderButton.click();
+  183 |     });
+  184 |   }
+  185 | 
+  186 |   /** Clicks OK on the "Confirm Receipt and Supplier Rating" popup if it appears after Update */
+  187 |   async confirmReceiptIfShown(): Promise<void> {
+  188 |     const confirmPopup = this.page.locator("#confirmBox_content");
+  189 |     const shown = await confirmPopup
+  190 |       .waitFor({ state: "visible", timeout: 5000 })
+  191 |       .then(() => true)
+  192 |       .catch(() => false);
+  193 |     if (!shown) return;
+  194 |     await step("Click OK on 'Confirm Receipt and Supplier Rating' popup", async () => {
+  195 |       await confirmPopup.locator("#poSubmitDiv .l_greenButton").click();
+  196 |       await expect(confirmPopup).toBeHidden();
+  197 |     });
+  198 |   }
+  199 | 
+  200 |   async selectCancelReasonAndConfirm(): Promise<string> {
+  201 |     return await step("Select a random cancel reason and confirm in 'Cancel Item' dialog", async () => {
+  202 |         await expect(this.cancelReasonSelect).toBeVisible();
+  203 |         const reason = await DataGenerators.selectRandomOption(this.cancelReasonSelect);
+  204 |         await this.cancelItemOkButton.click();
+  205 |         return reason;
+  206 |       },
+  207 |     );
+  208 |   }
+  209 | 
+  210 |   async verifyCancelledItemsVisible(cancelledItems: string[]): Promise<void> {
+  211 |     await step("Show cancelled parts and verify cancelled items are visible", async () => {
+  212 |         await this.page.locator('label[for="removedPartsDiv"]').click();
+  213 |         await expect(this.cancelledRows.first()).toBeVisible();
+  214 | 
+  215 |         for (const item of cancelledItems) {
+  216 |           await step(`Verify cancelled item '${item}' is visible`, async () => {
+  217 |             await expect(this.cancelledRows.filter({ hasText: item }).first()).toBeVisible();
+  218 |           });
+  219 |         }
+  220 |       },
+  221 |     );
+  222 |   }
+  223 | 
+  224 |   async selectAllItems(): Promise<{ itemId: string; description: string }[]> {
+  225 |     const total = await this.itemSelectCheckboxes.count();
+  226 | 
+  227 |     const selections: { checkboxId: string; itemId: string; description: string }[] = [];
+  228 |     for (let index = 0; index < total; index++) {
+  229 |       const checkbox = this.itemSelectCheckboxes.nth(index);
+  230 |       const checkboxId = await checkbox.getAttribute("id");
+  231 |       const itemId = await checkbox.getAttribute("data-id");
+  232 |       const description = (await this.page.locator(`#PO_ITEM_${itemId} .orderDes`).innerText()).split("\n")[0].trim();
+  233 |       selections.push({ checkboxId: checkboxId!, itemId: itemId!, description });
+  234 |     }
+  235 | 
+  236 |     await step(`Select all ${total} order items: [${selections.map((s) => s.description).join(", ")}]`, async () => {
+  237 |         for (const { checkboxId } of selections) {
+> 238 |           await this.page.locator(`label[for="${checkboxId}"]`).click();
+      |                                                                 ^ Error: locator.click: Test timeout of 60000ms exceeded.
+  239 |         }
+  240 |       },
+  241 |     );
+  242 | 
+  243 |     return selections.map(({ itemId, description }) => ({ itemId, description }));
+  244 |   }
+  245 | 
+  246 |   async fillReceiptReferenceNumber(quoteNumber: string): Promise<string> {
+  247 |     return await step("Fill receipt reference number in 'RIN' field", async () => {
+  248 |         const reference = `RP-${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+  249 |         await this.referenceInput.fill(reference);
+  250 |         return reference;
+  251 |       },
+  252 |     );
+  253 |   }
+  254 | 
+  255 |   async getInvoiceDate(): Promise<string> {
+  256 |     return await step("Get invoice/receipt date", async () => {
+  257 |       return await this.receiptDateInput.inputValue();
+  258 |     });
+  259 |   }
+  260 | 
+  261 |   itemStatus(itemId: string): Locator {
+  262 |     return this.page.locator(`#EXTRA_INFO_${itemId}`);
+  263 |   }
+  264 | 
+  265 |   async verifyItemsReceivedOnDate( receivedItems: { itemId: string; description: string }[], expectedDate: string): Promise<void> {
+  266 |     await step(`Verify all received items show status 'Received On ${expectedDate}'`, async () => {
+  267 |         for (const { itemId, description } of receivedItems) {
+  268 |           await step(`Verify item '${description}' status shows 'Received On ${expectedDate}'`, async () => {
+  269 |               await expect(this.itemStatus(itemId)).toContainText("Received");
+  270 |               await expect(this.itemStatus(itemId)).toContainText(expectedDate);
+  271 |             },
+  272 |           );
+  273 |         }
+  274 |       },
+  275 |     );
+  276 |   }
+  277 | 
+  278 |   async verifySearchedQuoteNumber(quoteNumber: string): Promise<void> {
+  279 |     await step(`Verify searched quote number '${quoteNumber}' matches the search results tab`, async () => {
+  280 |         await expect(this.searchedQuoteTabText).toHaveText(quoteNumber);
+  281 |       },
+  282 |     );
+  283 |   }
+  284 | 
+  285 |   purchaserOrderRow(supplier: string): Locator {
+  286 |     return this.page
+  287 |       .locator(".sub_containter .sub")
+  288 |       .filter({ has: this.page.locator('a[href*="orders-grid.php"]') })
+  289 |       .filter({ has: this.page.locator(".info", { hasText: supplier }) })
+  290 |       .first();
+  291 |   }
+  292 | 
+  293 |   async openPurchaserOrderBySupplier(supplier: string): Promise<void> {
+  294 |     await step(`Open purchaser order for supplier '${supplier}' from search results`, async () => {
+  295 |         await this.purchaserOrderRow(supplier)
+  296 |           .getByText("Open", { exact: true })
+  297 |           .click();
+  298 |       },
+  299 |     );
+  300 |   }
+  301 | 
+  302 |   async clickCreditRequest(): Promise<void> {
+  303 |     await step("Click 'Credit Request' button", async () => {
+  304 |       await this.creditRequestButton.click();
+  305 |     });
+  306 |   }
+  307 | 
+  308 |   async fillCreditReferenceNumber(quoteNumber: string): Promise<string> {
+  309 |     return await step("Fill credit reference number in 'RIN' field", async () => {
+  310 |         const reference = `CR-${quoteNumber}-${DataGenerators.randomString("", 5)}`;
+  311 |         await this.referenceInput.fill(reference);
+  312 |         return reference;
+  313 |       },
+  314 |     );
+  315 |   }
+  316 | 
+  317 |   async selectCreditRequestDetailsAndConfirm(): Promise<{requestedBy: string; reason: string;}> {
+  318 |     return await step("Select a random requester and reason, then confirm in 'Credit Item' dialog", async () => {
+  319 |         await expect(this.creditRequestByDropdown).toBeVisible();
+  320 |         const requestedBy = await DataGenerators.selectRandomOption(this.creditRequestByDropdown);
+  321 |         const reason = await DataGenerators.selectRandomOption(this.creditReasonSelect);
+  322 |         await this.creditItemOkButton.click();
+  323 |         return { requestedBy, reason };
+  324 |       },
+  325 |     );
+  326 |   }
+  327 | 
+  328 |   async verifyItemsCreditPending(creditedItems: { itemId: string; description: string }[]): Promise<void> {
+  329 |     await step("Verify all credited items show 'Credit Pending' status", async () => {
+  330 |         for (const { itemId, description } of creditedItems) {
+  331 |           await step(`Verify item '${description}' status shows 'Credit Pending'`, async () => {
+  332 |               const status = this.page.locator(`#PO_ITEM_${itemId} .orderStatus:visible`).first();
+  333 |               await expect(status).toContainText("Credit Pending");
+  334 |               await expect(status).toContainText("View Credit");
+  335 |             },
+  336 |           );
+  337 |         }
+  338 |       },
+```
