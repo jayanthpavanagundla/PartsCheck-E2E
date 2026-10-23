@@ -195,12 +195,14 @@ export class MarginSettingsTab {
                     let value: string;
                     if (accepted) {
                         pricingMethod = await step("Select Pricing Method", async (ctx) => {
-                            await DataGenerators.selectRandomOption(methodSelect);
+                            // Never pick "Charge of List" (value="1")
+                            const methods = (await DataGenerators.getSelectableValues(methodSelect)).filter((v) => v !== "1");
+                            await methodSelect.selectOption(DataGenerators.randomFromArray(methods));
                             const text = await this.selectedOptionText(methodSelect);
                             await ctx.displayName(`Select Pricing Method: ${text}`);
                             return text;
                         });
-                        value = String(DataGenerators.randomPrice(1, 100));
+                        value = String(DataGenerators.randomPrice(75, 100));
                         await step(`Enter Value: ${value}%`, async () => {
                             await valueInput.fill(value);
                         });
