@@ -45,7 +45,7 @@ test.describe("Repairer: Margin Rules Settings", () => {
         await repairerSettings.marginSettingsTab.verifyDefaultRule();
     });
 
-    test("Favourite star pins the rule to the top of the Margin Rules list; unfavouriting returns it to default sort order", async () => {
+    test("Favourite star pins the rule to the top of the Margin Rules list", async () => {
         await repairerNavBar.clickSettings();
         await repairerSettings.marginSettingsTab.clickMarginSettings();
         await repairerSettings.marginSettingsTab.captureDefaultSortOrder();
