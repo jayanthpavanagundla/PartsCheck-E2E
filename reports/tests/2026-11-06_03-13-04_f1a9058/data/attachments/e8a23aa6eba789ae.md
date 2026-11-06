@@ -1,0 +1,443 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: supplier/submitQuote.supplier.spec.ts >> Supplier: Submit Quote Flow >> Direct Purchase Order Quote Submission
+- Location: tests/supplier/submitQuote.supplier.spec.ts:70:7
+
+# Error details
+
+```
+Test timeout of 120000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 120000ms exceeded.
+Call log:
+  - waiting for locator('.toplist.cboxlink').filter({ hasText: 'Quotes In Progress' })
+    - locator resolved to <div data-locked="" class="toplist cboxlink" data-url="dashboardIFRAME.php?action=supplierQuotes">…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="welcome" id="cboxOverlay"></div> intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="welcome" id="cboxOverlay"></div> intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    226 × waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="welcome" id="cboxOverlay"></div> intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - table [ref=e5]:
+        - rowgroup [ref=e6]:
+          - row "Dashboard TeamViewer Reports Settings Logout Search here" [ref=e7]:
+            - cell [ref=e8]:
+              - link [ref=e9] [cursor=pointer]:
+                - /url: dashboard.php
+                - img [ref=e10]
+            - cell "Dashboard TeamViewer Reports Settings Logout Search here" [ref=e11]:
+              - table [ref=e12]:
+                - rowgroup [ref=e13]:
+                  - row "Dashboard TeamViewer Reports Settings Logout" [ref=e14]:
+                    - cell [ref=e15]
+                    - cell "Dashboard" [ref=e16]:
+                      - table [ref=e17]:
+                        - rowgroup [ref=e18]:
+                          - row "Dashboard" [ref=e19]:
+                            - cell [ref=e20]:
+                              - img [ref=e21]
+                            - cell "Dashboard" [ref=e22]:
+                              - link "Dashboard" [ref=e23] [cursor=pointer]:
+                                - /url: dashboard.php
+                    - cell "TeamViewer" [ref=e24]:
+                      - table [ref=e25]:
+                        - rowgroup [ref=e26]:
+                          - row "TeamViewer" [ref=e27]:
+                            - cell [ref=e28]:
+                              - img [ref=e29]
+                            - cell "TeamViewer" [ref=e30]:
+                              - link "TeamViewer" [ref=e31] [cursor=pointer]:
+                                - /url: http://www.teamviewer.com/link/?url=505374&id=2025955524
+                    - cell "Reports" [ref=e32]:
+                      - table [ref=e33]:
+                        - rowgroup [ref=e34]:
+                          - row "Reports" [ref=e35]:
+                            - cell [ref=e36]:
+                              - img [ref=e37]
+                            - cell "Reports" [ref=e38]:
+                              - link "Reports" [ref=e39] [cursor=pointer]:
+                                - /url: purchaser-report-list.php
+                    - cell "Settings" [ref=e40]:
+                      - table [ref=e41]:
+                        - rowgroup [ref=e42]:
+                          - row "Settings" [ref=e43]:
+                            - cell [ref=e44]:
+                              - img [ref=e45]
+                            - cell "Settings" [ref=e46]:
+                              - link "Settings" [ref=e47] [cursor=pointer]:
+                                - /url: ../appV2/settings.php?action=settingsSupplier
+                    - cell "Logout" [ref=e48]:
+                      - table [ref=e49]:
+                        - rowgroup [ref=e50]:
+                          - row "Logout" [ref=e51]:
+                            - cell [ref=e52]:
+                              - img [ref=e53]
+                            - cell "Logout" [ref=e54]:
+                              - link "Logout" [ref=e55] [cursor=pointer]:
+                                - /url: ../global/index.php?action=logout
+              - table [ref=e56]:
+                - rowgroup [ref=e57]:
+                  - row "Search here" [ref=e58]:
+                    - cell "Search here" [ref=e59]:
+                      - table [ref=e61]:
+                        - rowgroup [ref=e62]:
+                          - row "Search here" [ref=e63]:
+                            - cell "Search here" [ref=e64]:
+                              - textbox [ref=e65]: Search here
+                            - cell [ref=e66]:
+                              - img [ref=e67] [cursor=pointer]
+                    - cell [ref=e68]
+          - row [ref=e69]:
+            - cell [ref=e70]:
+              - generic:
+                - link [ref=e71] [cursor=pointer]:
+                  - /url: quotes-incoming.php
+                  - img [ref=e72]
+                - link [ref=e73] [cursor=pointer]:
+                  - /url: new-orders.php
+                  - img [ref=e74]
+                - link [ref=e75] [cursor=pointer]:
+                  - /url: credit-management.php
+                  - img [ref=e76]
+                - img [ref=e77]
+      - generic [ref=e79]:
+        - generic:
+          - generic [ref=e80]:
+            - generic [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: New Quote Request
+              - generic [ref=e83]: "20"
+            - generic [ref=e85] [cursor=pointer]: Quotes In Progress
+          - generic [ref=e86]:
+            - generic [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: All Orders
+              - generic [ref=e89]: "14"
+            - generic [ref=e91] [cursor=pointer]: ETA Requests
+            - generic [ref=e92] [cursor=pointer]:
+              - generic [ref=e93]: ETA Overdue
+              - generic [ref=e94]: "3"
+          - generic [ref=e95]:
+            - generic [ref=e96] [cursor=pointer]:
+              - generic [ref=e97]: All Credit Requests
+              - generic [ref=e98]: "224"
+            - generic [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]: Credits Not Opened
+              - generic [ref=e101]: "38"
+            - generic [ref=e102] [cursor=pointer]:
+              - generic [ref=e103]: Credits Opened
+              - generic [ref=e104]: "186"
+          - generic [ref=e105]:
+            - generic [ref=e107] [cursor=pointer]: Contact Us
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e109]: New Messages
+              - generic [ref=e110]: "216"
+            - generic [ref=e111] [cursor=pointer]:
+              - generic [ref=e112]: New Feedback
+              - generic [ref=e113]: "22"
+            - generic [ref=e115] [cursor=pointer]: Fill Rate Reporting
+      - img [ref=e117]
+      - table [ref=e119]:
+        - rowgroup [ref=e120]:
+          - row "Last month in numbers A snapshot of how PartsCheck powered your business OCT 2026" [ref=e121]:
+            - cell "Last month in numbers A snapshot of how PartsCheck powered your business" [ref=e122]:
+              - generic [ref=e123]:
+                - text: Last month in numbers
+                - text: A snapshot of how PartsCheck powered your business
+            - cell "OCT 2026" [ref=e124]:
+              - generic [ref=e125]: OCT 2026
+          - row "Quotes Received 151 1,046 Part items ▲ Quote up 80% Orders Received 56 485 Parts ordered ▲ Order up 300% Total Revenue $58,100 $1,037 Average order value ▲ Revenue up 338% Hours Saved 35 hrs Quote and admin time saved Estimated based on average workflow time range" [ref=e126]:
+            - cell "Quotes Received 151 1,046 Part items ▲ Quote up 80%" [ref=e127]:
+              - generic [ref=e128]:
+                - generic [ref=e129]: Quotes Received
+                - generic [ref=e130]: "151"
+                - generic [ref=e131]: 1,046 Part items
+                - generic [ref=e132]: ▲ Quote up 80%
+            - cell "Orders Received 56 485 Parts ordered ▲ Order up 300%" [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: Orders Received
+                - generic [ref=e136]: "56"
+                - generic [ref=e137]: 485 Parts ordered
+                - generic [ref=e138]: ▲ Order up 300%
+            - cell "Total Revenue $58,100 $1,037 Average order value ▲ Revenue up 338%" [ref=e139]:
+              - generic [ref=e140]:
+                - generic [ref=e141]: Total Revenue
+                - generic [ref=e142]: $58,100
+                - generic [ref=e143]: $1,037 Average order value
+                - generic [ref=e144]: ▲ Revenue up 338%
+            - cell "Hours Saved 35 hrs Quote and admin time saved Estimated based on average workflow time range" [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e147]: Hours Saved
+                - generic [ref=e148]: 35 hrs
+                - generic [ref=e150]: Quote and admin time saved
+                - generic [ref=e151]: Estimated based on average workflow time range
+      - img [ref=e153]
+      - table [ref=e155]:
+        - rowgroup [ref=e156]:
+          - row "Quote upload options! Most dealer management systems have the ability to upload a quote into PartsCheck without the need of re keying information. Your Current PartsCheck Rating Customer Rating Purchase Orders (Very Low Volume) Quotes On Time PartsCheck Terms PartsCheck Positive Be recognised as a top rated PartsCheck supplier so you can stand out from the crowd! This helps repairer�s who may be looking for higher performing suppliers. Promote your Business FREE! Let all the PartsCheck repairers know your are now using PartsCheck by using our electronic business card feature. It's free and you have access to every repairer in every state of Australia. This handy feature also allows you to send out weekly specials or promotions to the PartsCheck community." [ref=e157]:
+            - cell "Quote upload options! Most dealer management systems have the ability to upload a quote into PartsCheck without the need of re keying information." [ref=e158]:
+              - generic [ref=e159]:
+                - text: Quote upload options!
+                - paragraph [ref=e160]: Most dealer management systems have the ability to upload a quote into PartsCheck without the need of re keying information.
+            - cell "Your Current PartsCheck Rating Customer Rating Purchase Orders (Very Low Volume) Quotes On Time PartsCheck Terms PartsCheck Positive Be recognised as a top rated PartsCheck supplier so you can stand out from the crowd! This helps repairer�s who may be looking for higher performing suppliers." [ref=e161]:
+              - generic [ref=e162]:
+                - generic [ref=e163]:
+                  - text: Your Current PartsCheck Rating
+                  - table [ref=e164]:
+                    - rowgroup [ref=e165]:
+                      - row "Customer Rating Purchase Orders (Very Low Volume) Quotes On Time PartsCheck Terms PartsCheck Positive" [ref=e166]:
+                        - cell "Customer Rating" [ref=e167]:
+                          - img "Customer Rating" [ref=e168]
+                        - cell "Purchase Orders (Very Low Volume)" [ref=e169]:
+                          - img "Purchase Orders (Very Low Volume)" [ref=e170]
+                        - cell "Quotes On Time" [ref=e171]:
+                          - img "Quotes On Time" [ref=e172]
+                        - cell "PartsCheck Terms" [ref=e173]:
+                          - img "PartsCheck Terms" [ref=e174]
+                        - cell "PartsCheck Positive" [ref=e175]:
+                          - img "PartsCheck Positive" [ref=e176]
+                - paragraph [ref=e177]: Be recognised as a top rated PartsCheck supplier so you can stand out from the crowd! This helps repairer�s who may be looking for higher performing suppliers.
+            - cell "Promote your Business FREE! Let all the PartsCheck repairers know your are now using PartsCheck by using our electronic business card feature. It's free and you have access to every repairer in every state of Australia. This handy feature also allows you to send out weekly specials or promotions to the PartsCheck community." [ref=e178]:
+              - generic [ref=e179]:
+                - text: Promote your Business FREE!
+                - paragraph [ref=e180]: Let all the PartsCheck repairers know your are now using PartsCheck by using our electronic business card feature. It's free and you have access to every repairer in every state of Australia. This handy feature also allows you to send out weekly specials or promotions to the PartsCheck community.
+          - row "Read More Read More Send Business Cards Now!" [ref=e181]:
+            - cell "Read More" [ref=e182]:
+              - link "Read More" [ref=e183] [cursor=pointer]:
+                - /url: dashboardIFRAME.php?type=htmlPageData&sec=4
+                - generic [ref=e184]: Read More
+            - cell "Read More" [ref=e185]:
+              - link "Read More" [ref=e186] [cursor=pointer]:
+                - /url: dashboardIFRAME.php?type=htmlPageData&sec=8
+                - generic [ref=e187]: Read More
+            - cell "Send Business Cards Now!" [ref=e188]:
+              - link "Send Business Cards Now!" [ref=e189] [cursor=pointer]:
+                - /url: dashboardIFRAME.php?type=businessCard
+                - generic [ref=e192]: Send Business Cards Now!
+      - img [ref=e194]
+      - table [ref=e196]:
+        - rowgroup [ref=e197]:
+          - row "Troubleshooting This page displays technical information that might be useful when trying to solve a problem while using PartsCheck. Book For Online Training Please contact us to discuss your training requirements or book in for an online training session. Business Closure Dates Setup your business closures to assist repairers when quoting. This may also include periods where you are not quoting due to Internet Outage and other reasons." [ref=e198]:
+            - cell "Troubleshooting This page displays technical information that might be useful when trying to solve a problem while using PartsCheck." [ref=e199]:
+              - generic [ref=e200]:
+                - text: Troubleshooting
+                - paragraph [ref=e201]: This page displays technical information that might be useful when trying to solve a problem while using PartsCheck.
+            - cell "Book For Online Training Please contact us to discuss your training requirements or book in for an online training session." [ref=e202]:
+              - generic [ref=e203]:
+                - text: Book For Online Training
+                - paragraph [ref=e204]: Please contact us to discuss your training requirements or book in for an online training session.
+            - cell "Business Closure Dates Setup your business closures to assist repairers when quoting. This may also include periods where you are not quoting due to Internet Outage and other reasons." [ref=e205]:
+              - generic [ref=e206]:
+                - text: Business Closure Dates
+                - paragraph [ref=e207]: Setup your business closures to assist repairers when quoting. This may also include periods where you are not quoting due to Internet Outage and other reasons.
+          - row "Read More Read More Set Closure Dates" [ref=e208]:
+            - cell "Read More" [ref=e209]:
+              - link "Read More" [ref=e210] [cursor=pointer]:
+                - /url: dashboardIFRAME.php?type=htmlPageData&sec=6
+                - generic [ref=e211]: Read More
+            - cell "Read More" [ref=e212]:
+              - link "Read More" [ref=e213] [cursor=pointer]:
+                - /url: dashboardIFRAME.php?type=bookOnline&p=book
+                - generic [ref=e214]: Read More
+            - cell "Set Closure Dates" [ref=e215]:
+              - link "Set Closure Dates" [ref=e216] [cursor=pointer]:
+                - /url: ../appV2/settings.php?action=settingsBusinessClosure
+                - generic [ref=e217]: Set Closure Dates
+    - table [ref=e219]:
+      - rowgroup [ref=e220]:
+        - row "Logged in as s1 (Aftermarket) 2:22pm Contact PartsCheck" [ref=e221]:
+          - cell "Logged in as s1 (Aftermarket) 2:22pm" [ref=e222]
+          - cell "Contact PartsCheck" [ref=e223]:
+            - link "Contact PartsCheck" [ref=e225] [cursor=pointer]:
+              - /url: http://www.partscheck.com.au/global/contact-partscheck.php
+  - dialog [active] [ref=e227]:
+    - iframe [ref=e231]:
+      - generic [ref=f2e2]:
+        - generic [ref=f2e3]: Welcome to PartsCheck
+        - generic [ref=f2e4]:
+          - generic [ref=f2e5]: Please fill in details or select your name from below. This prompt will no longer appear after you Create User
+          - table [ref=f2e6]:
+            - rowgroup [ref=f2e7]:
+              - row [ref=f2e8]:
+                - cell [ref=f2e9]:
+                  - textbox "* First Name (REQUIRED)" [ref=f2e10]
+              - row [ref=f2e11]:
+                - cell [ref=f2e12]:
+                  - textbox "* Last Name (REQUIRED)" [ref=f2e13]
+              - row "* Please select Job Role (REQUIRED)" [ref=f2e14]:
+                - cell "* Please select Job Role (REQUIRED)" [ref=f2e15]:
+                  - combobox [ref=f2e16]:
+                    - option "* Please select Job Role (REQUIRED)" [selected]
+                    - option "Parts Interpreter"
+                    - option "Parts Manager"
+                    - option "Accounts"
+              - row [ref=f2e17]:
+                - cell [ref=f2e18]:
+                  - textbox "Email Address (OPTIONAL)" [ref=f2e19]
+              - row [ref=f2e20]:
+                - cell [ref=f2e21]:
+                  - textbox "Mobile Number (OPTIONAL)" [ref=f2e22]
+              - row "Create User" [ref=f2e23]:
+                - cell "Create User" [ref=f2e24]:
+                  - generic [ref=f2e25] [cursor=pointer]: Create User
+        - generic [ref=f2e26]:
+          - generic [ref=f2e27]: "Or choose existing user from list:"
+          - generic [ref=f2e28]:
+            - generic [ref=f2e29]: MM
+            - generic [ref=f2e30]: Matt Matt
+          - generic [ref=f2e31]:
+            - generic [ref=f2e32]: TU
+            - generic [ref=f2e33]: Test User
+```
+
+# Test source
+
+```ts
+  209 |       async () => {
+  210 |         this.page.once("dialog", (dialog) => dialog.accept());
+  211 |         await this.submitQuoteButton.click();
+  212 |         await expect(this.submitVerifyText).toHaveText("Incoming Quotes");
+  213 |       },
+  214 |     );
+  215 |   }
+  216 | 
+  217 |   // Images 
+  218 | 
+  219 |   async verifyImagesCounter(count: number): Promise<void> {
+  220 |     await step(`Verify images counter shows '${count}'`, async () => {
+  221 |       await expect(this.imagesCounter).toHaveText(count.toString());
+  222 |     });
+  223 |   }
+  224 | 
+  225 |   async clickImagesButton(): Promise<void> {
+  226 |     await step('Click "Images" button', async () => {
+  227 |       await this.imagesButton.locator("img").click();
+  228 |     });
+  229 |   }
+  230 | 
+  231 |   async getVisibleImageIdentifiers(): Promise<string[]> {
+  232 |     return await step("Read image identifiers visible in Images popup", async () => {
+  233 |       await expect(this.popupImageThumbnails.first()).toBeVisible();
+  234 |       const srcs = await this.popupImageThumbnails.evaluateAll(
+  235 |         (imgs: HTMLImageElement[]) => imgs.map((img) => img.src),
+  236 |       );
+  237 |       return srcs
+  238 |         .map((src) => {
+  239 |           const fileName = new URL(src).searchParams.get("fileName") ?? src;
+  240 |           return fileName.slice(10);
+  241 |         })
+  242 |         .sort();
+  243 |     });
+  244 |   }
+  245 | 
+  246 |   // Attachments
+  247 | 
+  248 |   async clickAttachFileButton(): Promise<void> {
+  249 |     await step('Click "Attach File" button', async () => {
+  250 |       await this.attachFileButton.locator("img").click();
+  251 |       // Colorbox reuses the Images iframe; wait until it is the Attach page and fully loaded
+  252 |       await expect(this.page.locator("iframe.cboxIframe")).toHaveAttribute("src", /action=attachDoco/);
+  253 |       await expect(this.page.locator("#cboxLoadingOverlay")).toBeHidden();
+  254 |       await expect(this.attachSubmitButtons.first()).toBeVisible();
+  255 |     });
+  256 |   }
+  257 | 
+  258 |   async attachFile(filePath: string): Promise<string> {
+  259 |     const fileName = path.basename(filePath);
+  260 |     await step(`Attach file '${fileName}'`, async () => {
+  261 |       const fileInput = this.attachFileInputs.first();
+  262 |       await fileInput.setInputFiles(filePath);
+  263 |       // Confirm the file is still selected (an iframe reload drops it) before submitting
+  264 |       expect(
+  265 |         await fileInput.evaluate((el: HTMLInputElement) => el.files?.length ?? 0),
+  266 |         `'${fileName}' should be selected before clicking Attach`,
+  267 |       ).toBe(1);
+  268 |       // Attach validates client side (e.g. 2 MB per-file limit) and shows an alert instead of uploading
+  269 |       let validationAlert = "";
+  270 |       const onDialog = async (dialog: Dialog) => {
+  271 |         validationAlert = dialog.message();
+  272 |         await dialog.dismiss();
+  273 |       };
+  274 |       this.page.on("dialog", onDialog);
+  275 |       try {
+  276 |         const attachedRow = this.attachedRows.filter({ hasText: fileName });
+  277 |         await this.attachSubmitButtons.first().click();
+  278 |         // Wait for whichever comes first: the validation alert or the "Attached:" row
+  279 |         await expect
+  280 |           .poll(async () => validationAlert !== "" || (await attachedRow.isVisible()))
+  281 |           .toBe(true);
+  282 |         expect(validationAlert, `Attach rejected '${fileName}'`).toBe("");
+  283 |       } finally {
+  284 |         this.page.off("dialog", onDialog);
+  285 |       }
+  286 |     });
+  287 |     return fileName;
+  288 |   }
+  289 | 
+  290 |   async verifyAttachmentsCounter(count: number): Promise<void> {
+  291 |     await step(`Verify attachments counter shows '${count}'`, async () => {
+  292 |       await expect(this.attachFileCounter).toHaveText(count.toString());
+  293 |     });
+  294 |   }
+  295 | }
+  296 | //=============================Quotes In Progress Tab=============================//
+  297 | export class QuotesInProgressTab {
+  298 |   // Locators
+  299 |   quotesInProgressTab: Locator;
+  300 |   // Constructor
+  301 |   constructor(protected readonly page: Page) {
+  302 |     this.quotesInProgressTab = page.locator(".toplist.cboxlink", {
+  303 |       hasText: "Quotes In Progress",
+  304 |     });
+  305 |   }
+  306 |   // Methods
+  307 |   async clickQuotesInProgress(): Promise<void> {
+  308 |     await step('Click "Quotes In Progress" tab', async () => {
+> 309 |       await this.quotesInProgressTab.click();
+      |                                      ^ Error: locator.click: Test timeout of 120000ms exceeded.
+  310 |     });
+  311 |   }
+  312 | }
+  313 | //=============================Supplier Quotes=======================//
+  314 | export class SupplierQuotes {
+  315 |   readonly newQuotesRequestTab: NewQuotesRequestTab;
+  316 |   readonly quotesInProgressTab: QuotesInProgressTab;
+  317 | 
+  318 |   constructor(page: Page) {
+  319 |     this.newQuotesRequestTab = new NewQuotesRequestTab(page);
+  320 |     this.quotesInProgressTab = new QuotesInProgressTab(page);
+  321 |   }
+  322 | }
+  323 | 
+```
