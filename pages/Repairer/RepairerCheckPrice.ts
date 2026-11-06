@@ -126,6 +126,19 @@ export class ActiveQuotesTab {
     await step(`Select Supplier: '${supplierName}'`, async () => {
       const index = await this.getSupplierIndex(supplierName);
       await this.supplierButtons.nth(index).click();
+
+      // Optional dialog: click Accept if it appears, otherwise carry on.
+      const accept = this.confirmationDialogAcceptButton;
+      try {
+        await accept.waitFor({ state: "visible", timeout: 3000 });
+      } catch {
+        return; // dialog didn't show, nothing to do
+      }
+
+      await step("Dialog shown - click Accept", async () => {
+        await accept.click();
+        await expect(this.confirmationDialog).toBeHidden();
+      });
     });
   }
 
