@@ -68,7 +68,32 @@ export class LoginPage {
   }
 
   async selectFingerprintTestUser(name: string) {
-    await this.fingerprintFrame.getByText(name, { exact: true }).click();
+    const popup = this.page.locator("iframe.cboxIframe");
+    const user = this.fingerprintFrame.getByText(name, { exact: true });
+
+    await user.waitFor({ state: "visible" });
+
+    // Match on the response body instead of URL/postData; it's the one
+    // thing we know is right: {"shortName":"TU", ...}
+    const saved = this.page
+      .waitForResponse(
+        async (r) => {
+          if (r.request().method() !== "POST") return false;
+          try {
+            return (await r.json())?.userId != null;
+          } catch {
+            return false;
+          }
+        },
+        { timeout: 10_000 },
+      )
+      .catch(() => null);
+
+    await user.click();
+    await saved; // server has stored the choice (or we fall through safely)
+
+    await expect(popup).toHaveCount(0);        // popup closed
+    await this.page.waitForLoadState("load");  // reload finished
   }
 
   /**
@@ -77,8 +102,8 @@ export class LoginPage {
    * that picks the fingerprint test user whenever the popup shows up.
    */
   async autoSelectFingerprintUser(name: string) {
-    await this.page.addLocatorHandler(
-      this.page.locator("#cboxOverlay.welcome"),
+     await this.page.addLocatorHandler(
+      this.page.locator("iframe.cboxIframe"),
       async () => {
         await step(`Welcome popup shown - select user "${name}"`, async () => {
           await this.selectFingerprintTestUser(name);
